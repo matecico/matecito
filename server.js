@@ -35,10 +35,24 @@ async function enviarNotificacionTelegram(mensaje) {
     }
 }
 
-// 3. RUTA PARA CREAR LA PREFERENCIA DE PAGO
+// 3. RUTA PARA CREAR LA PREFERENCIA DE PAGO Y NOTIFICAR COMPRA
 app.post('/api/crear-preferencia', async (req, res) => {
     try {
         const { items, cliente } = req.body;
+
+        // Calcular total
+        const total = items.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
+        const listaProd = items.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
+
+        // Mensaje directo a Telegram APENAS hacen clic en pagar
+        const avisoTelegram = `🛒 <b>¡NUEVO PEDIDO INICIADO!</b> 🛒\n\n` +
+            `👤 <b>Cliente:</b> ${cliente?.nombre || 'No especificado'}\n` +
+            `📍 <b>Dirección:</b> ${cliente?.direccion || 'No especificada'}\n` +
+            `📞 <b>Teléfono:</b> ${cliente?.telefono || 'No especificado'}\n` +
+            `💵 <b>Total:</b> $${total}\n\n` +
+            `📦 <b>Productos:</b>\n${listaProd}`;
+        
+        await enviarNotificacionTelegram(avisoTelegram);
 
         const preference = new Preference(client);
 
@@ -91,7 +105,7 @@ app.post('/api/webhook-mp', async (req, res) => {
 
                         let listaProductos = items.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
 
-                        const mensaje = `🛒 <b>¡NUEVA COMPRA APROBADA!</b> 🛒\n\n` +
+                        const mensaje = `✅ <b>¡COMPRA PAGADA Y APROBADA!</b> ✅\n\n` +
                             `👤 <b>Cliente:</b> ${metadata.cliente_nombre || 'N/A'}\n` +
                             `📍 <b>Dirección:</b> ${metadata.cliente_direccion || 'N/A'}\n` +
                             `📞 <b>Teléfono:</b> ${metadata.cliente_telefono || 'N/A'}\n` +
@@ -111,8 +125,8 @@ app.post('/api/webhook-mp', async (req, res) => {
     }
 });
 
-// 5. INICIAR EL SERVIDOR LOCAL
+// 5. INICIAR EL SERVIDOR
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Servidor de MateCico activo en http://localhost:${PORT}`);
-});
+    console.log(`Servidor de MateCico activo en puerto ${PORT}`);
+}
