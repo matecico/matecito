@@ -232,7 +232,7 @@ async function procesarPagoMercadoPago(e) {
   }
 
   try {
-    const respuesta = await fetch('/api/crear-preferencia', {
+    const respuesta = await fetch('https://matecito.onrender.com/api/crear-preferencia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

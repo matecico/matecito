@@ -16,8 +16,8 @@ const TELEGRAM_CHAT_ID = '7691781211';
 // URL del Backend en Render (para Webhooks de Mercado Pago)
 const URL_PUBLICA_SERVER = 'https://matecito.onrender.com';
 
-// URL del Frontend en Netlify (para redirigir al comprador)
-const URL_FRONTEND = 'https://cerulean-pegasus-b7f4e1.netlify.app';
+// URL del Frontend en Netlify (URL actualizada)
+const URL_FRONTEND = 'https://matecico.netlify.app';
 
 const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
 
