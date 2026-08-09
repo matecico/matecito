@@ -1,0 +1,36 @@
+/* TRUCO FULL-WIDTH: Forzar imagen a ocupar todo el ancho del navegador */
+.hero, .banner, .contenedor-banner, main > section:first-child, main > div:first-child {
+  width: 100vw !important;
+  position: relative !important;
+  left: 50% !important;
+  right: 50% !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.hero img, .banner img, .contenedor-banner img, main > section:first-child img, main > div:first-child img {
+  width: 100vw !important;
+  height: 420px !important; /* Altura del banner */
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* En celulares ajusta la altura */
+@media (max-width: 768px) {
+  .hero img, .banner img, .contenedor-banner img, main > section:first-child img, main > div:first-child img {
+    height: 220px !important;
+  }
+}/* REGLA DE SEGURIDAD GLOBAL PARA IMÁGENES */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.logo-img {
+  width: 45px !important;
+  height: 45px !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+}

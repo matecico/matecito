@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MateCico - Tienda de Mates</title>
+  
+  <style>
+    /* RESET GLOBAL Y ENLACES */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    a, a:visited, a:hover, a:active {
+      text-decoration: none !important;
+      color: inherit !important;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background-color: #1e1e1e;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .logo-img {
+      width: 42px !important;
+      height: 42px !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #cccccc !important;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links a:hover {
+      color: #25d366 !important;
+    }
+
+    /* HERO SECTION */
+    .hero {
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #181818;
+      border-bottom: 1px solid #252525;
+    }
+
+    .hero h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .hero p {
+      color: #aaaaaa;
+      margin-bottom: 18px;
+    }
+
+    .btn-hero {
+      display: inline-block;
+      background-color: #25d366;
+      color: #000000 !important;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    /* CONTENEDOR PRINCIPAL Y GRILLA MULTI-COLUMNA */
+    .contenedor-principal {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .titulo-seccion {
+      font-size: 1.6rem;
+      color: #ffffff;
+      margin-bottom: 25px;
+    }
+
+    /* FORZA A LOS PRODUCTOS A PONERSE EN FILAS Y COLUMNAS */
+    #contenedor-productos, .productos-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+      gap: 25px !important;
+      width: 100% !important;
+    }
+
+    /* TARJETAS DE PRODUCTO CORREGIDAS */
+    #contenedor-productos > div, .card-producto, .producto {
+      background-color: #1e1e1e !important;
+      border: 1px solid #2a2a2a !important;
+      border-radius: 10px !important;
+      padding: 15px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      text-align: center !important;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      height: 100%;
+    }
+
+    /* CONTENEDOR DE LA IMAGEN EN LA TARJETA */
+    .card-producto img, .producto img, #contenedor-productos img {
+      max-width: 100% !important;
+      max-height: 170px !important;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain !important;
+      display: block;
+      margin: 0 auto 10px auto;
+    }
+
+    /* TITULOS Y TEXTOS DENTRO DE LAS TARJETAS */
+    .card-producto h3, .producto h3, #contenedor-productos h3 {
+      font-size: 1rem !important;
+      color: #ffffff !important;
+      margin: 8px 0 !important;
+      line-height: 1.3 !important;
+      font-weight: 600;
+    }
+
+    /* PRECIOS Y DESCUENTOS */
+    .precio, .precio-lista {
+      font-size: 1.1rem !important;
+      font-weight: bold !important;
+      color: #ffffff !important;
+      margin: 5px 0 !important;
+    }
+
+    .precio-descuento, .transferencia {
+      font-size: 0.85rem !important;
+      color: #25d366 !important;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    /* BOTON AGREGAR AL CARRITO */
+    .card-producto button, .producto button, .btn-agregar, #contenedor-productos button {
+      background-color: #25d366 !important;
+      color: #000000 !important;
+      border: none !important;
+      padding: 12px 15px !important;
+      border-radius: 6px !important;
+      font-weight: bold !important;
+      font-size: 0.85rem !important;
+      cursor: pointer !important;
+      width: 100% !important;
+      margin-top: 10px !important;
+      transition: background-color 0.2s;
+    }
+
+    .card-producto button:hover, .producto button:hover, .btn-agregar:hover, #contenedor-productos button:hover {
+      background-color: #1ebd56 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">
+        <img src="img/logo.jpg" alt="MateCico" class="logo-img">
+        <span>MateCico</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">INICIO</a>
+        <a href="#productos">PRODUCTOS</a>
+        <a href="contacto.html">CONTACTO</a>
+        <a href="carrito.html">🛒 CARRITO</a>
+      </div>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Bienvenido a MateCico</h1>
+    <p>Encontrá los mejores mates, bombillas y termos para tu día a día.</p>
+    <a href="#productos" class="btn-hero">Ver Catálogo</a>
+  </section>
+
+  <main class="contenedor-principal">
+    <h2 id="productos" class="titulo-seccion">Productos Destacados</h2>
+    <div id="contenedor-productos" class="productos-grid">
+      <!-- Carga dinámicamente desde JS -->
+    </div>
+  </main>
+
+  <script src="js/productos.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

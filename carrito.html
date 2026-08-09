@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito de Compras - MateCico</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    a, a:visited, a:hover, a:active {
+      text-decoration: none !important;
+      color: inherit !important;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background-color: #181818;
+      border-bottom: 1px solid #262626;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .logo-img {
+      width: 40px !important;
+      height: 40px !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #cccccc !important;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links a:hover {
+      color: #25d366 !important;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .seccion-carrito {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .titulo-pagina {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 30px;
+    }
+
+    /* GRID 2 COLUMNAS */
+    .grid-carrito {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 30px;
+      align-items: start;
+    }
+
+    @media (max-width: 850px) {
+      .grid-carrito {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* COLUMNA IZQUIERDA */
+    .columna-izquierda {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    #contenedor-carrito {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .item-carrito {
+      background-color: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .info-producto-carrito {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-grow: 1;
+    }
+
+    .img-item-carrito {
+      width: 60px !important;
+      height: 60px !important;
+      object-fit: cover !important;
+      border-radius: 6px;
+    }
+
+    .detalles-item h4 {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .detalles-item span {
+      color: #aaaaaa;
+      font-size: 0.85rem;
+    }
+
+    .selector-cantidad {
+      display: flex;
+      align-items: center;
+      background-color: #121212;
+      border: 1px solid #333333;
+      border-radius: 4px;
+      padding: 4px 10px;
+      gap: 12px;
+      font-weight: bold;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    .selector-cantidad button {
+      background: none;
+      border: none;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 4px;
+    }
+
+    .precio-item-carrito {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .btn-eliminar-item {
+      background: none;
+      border: none;
+      color: #aaaaaa;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 5px;
+    }
+
+    .btn-eliminar-item:hover {
+      color: #ff4d4d;
+    }
+
+    /* FORMULARIO DATOS DE ENVÍO */
+    .card-datos-envio {
+      background-color: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .card-datos-envio h3 {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .grid-formulario {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .grid-formulario {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .campo-form {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .campo-form.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .campo-form label {
+      font-size: 0.8rem;
+      color: #aaaaaa;
+      font-weight: bold;
+    }
+
+    .campo-form input, .campo-form textarea {
+      background-color: #121212;
+      border: 1px solid #333333;
+      color: #ffffff;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .campo-form input:focus, .campo-form textarea:focus {
+      border-color: #25d366;
+    }
+
+    /* COLUMNA DERECHA: RESUMEN */
+    .resumen-card {
+      background-color: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .resumen-card h3 {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .divisor-resumen {
+      border: 0;
+      border-top: 1px solid #2a2a2a;
+      margin: -2px 0;
+    }
+
+    .caja-envio {
+      background-color: #121212;
+      border: 1px solid #2a2a2a;
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .caja-envio label {
+      font-size: 0.85rem;
+      color: #aaaaaa;
+      font-weight: bold;
+    }
+
+    .grupo-input-cp {
+      display: flex;
+      gap: 8px;
+    }
+
+    .grupo-input-cp input {
+      flex: 1;
+      background-color: #1e1e1e;
+      border: 1px solid #333333;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .grupo-input-cp button {
+      background-color: #333333;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .grupo-input-cp button:hover {
+      background-color: #444444;
+    }
+
+    .resultado-envio {
+      font-size: 0.85rem;
+      color: #25d366;
+      font-weight: bold;
+      min-height: 18px;
+    }
+
+    .linea-resumen {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+    }
+
+    .linea-resumen .etiqueta {
+      color: #ffffff;
+    }
+
+    .linea-resumen .monto-lista {
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    .linea-resumen .etiqueta-descuento {
+      color: #e5c158;
+      font-weight: bold;
+    }
+
+    .linea-resumen .monto-descuento {
+      color: #e5c158;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .acciones-resumen {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 5px;
+    }
+
+    .btn-vaciar-carrito {
+      width: 100%;
+      background: transparent;
+      border: 1px solid #ff4d4d;
+      color: #ff4d4d;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-vaciar-carrito:hover {
+      background-color: rgba(255, 77, 77, 0.1);
+    }
+
+    .btn-pagar-ahora {
+      width: 100%;
+      background-color: #007bff;
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-pagar-ahora:hover {
+      background-color: #0056b3;
+    }
+
+    .btn-whatsapp-compra {
+      width: 100%;
+      background-color: #25d366;
+      color: #000000;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-whatsapp-compra:hover {
+      background-color: #1ebd56;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">
+        <img src="img/logo.jpg" alt="MateCico" class="logo-img">
+        <span>MateCico</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">INICIO</a>
+        <a href="index.html#productos">PRODUCTOS</a>
+        <a href="contacto.html">CONTACTO</a>
+        <a href="carrito.html">🛒 CARRITO</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="seccion-carrito">
+    <h1 class="titulo-pagina">Tu Carrito de Compras</h1>
+
+    <div class="grid-carrito">
+      
+      <div class="columna-izquierda">
+        <!-- PRODUCTOS -->
+        <div id="contenedor-carrito">
+          <!-- Renderizado por JS -->
+        </div>
+
+        <!-- FORMULARIO DE DATOS DE ENVÍO -->
+        <div class="card-datos-envio">
+          <h3>📦 Datos de Entrega y Contacto</h3>
+          
+          <div class="grid-formulario">
+            <div class="campo-form">
+              <label for="cliente-nombre">Nombre y Apellido *</label>
+              <input type="text" id="cliente-nombre" placeholder="Juan Pérez">
+            </div>
+
+            <div class="campo-form">
+              <label for="cliente-telefono">Teléfono / WhatsApp *</label>
+              <input type="text" id="cliente-telefono" placeholder="11 1234 5678">
+            </div>
+
+            <div class="campo-form">
+              <label for="cliente-direccion">Dirección y Número *</label>
+              <input type="text" id="cliente-direccion" placeholder="Av. Rivadavia 1234, Dpto 2B">
+            </div>
+
+            <div class="campo-form">
+              <label for="cliente-localidad">Localidad / Provincia *</label>
+              <input type="text" id="cliente-localidad" placeholder="CABA, Buenos Aires">
+            </div>
+
+            <div class="campo-form full-width">
+              <label for="cliente-notas">Aclaraciones u Observaciones (Opcional)</label>
+              <textarea id="cliente-notas" rows="2" placeholder="Ej: Timbre B, dejar en portería..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESUMEN DERECHA -->
+      <div class="resumen-card">
+        <h3>Resumen del Pedido</h3>
+        <hr class="divisor-resumen">
+
+        <div class="caja-envio">
+          <label for="input-cp">Calcular Envío (Código Postal)</label>
+          <div class="grupo-input-cp">
+            <input type="text" id="input-cp" placeholder="Ej: 1425" maxlength="5">
+            <button id="btn-calcular-cp">Calcular</button>
+          </div>
+          <div id="mensaje-envio" class="resultado-envio"></div>
+        </div>
+
+        <div class="linea-resumen">
+          <span class="etiqueta">Envío:</span>
+          <span id="costo-envio-texto" class="monto-lista">$0</span>
+        </div>
+
+        <hr class="divisor-resumen">
+
+        <div class="linea-resumen">
+          <span class="etiqueta">Total Lista:</span>
+          <span id="total-lista" class="monto-lista">$0</span>
+        </div>
+
+        <div class="linea-resumen">
+          <span class="etiqueta-descuento">Total Transferencia (10% OFF):</span>
+          <span id="total-transferencia" class="monto-descuento">$0</span>
+        </div>
+
+        <div class="acciones-resumen">
+          <button id="btn-vaciar" class="btn-vaciar-carrito">Vaciar Carrito</button>
+          <button id="btn-pagar" class="btn-pagar-ahora">PAGAR</button>
+          <button id="btn-finalizar" class="btn-whatsapp-compra">FINALIZAR COMPRA POR WHATSAPP 📲</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/productos.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

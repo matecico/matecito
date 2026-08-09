@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle de Producto - MateCico</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    a, a:visited, a:hover, a:active {
+      text-decoration: none !important;
+      color: inherit !important;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background-color: #181818;
+      border-bottom: 1px solid #262626;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .logo-img {
+      width: 40px !important;
+      height: 40px !important;
+      object-fit: cover !important;
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .nav-links a {
+      color: #cccccc !important;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links a:hover {
+      color: #25d366 !important;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .seccion-producto {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .breadcrumb {
+      font-size: 0.85rem;
+      color: #888888;
+      margin-bottom: 25px;
+    }
+
+    .breadcrumb a {
+      color: #aaaaaa !important;
+    }
+
+    /* LAYOUT DEL DETALLE DE PRODUCTO */
+    .grid-detalle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+      background-color: #1e1e1e;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 30px;
+    }
+
+    @media (max-width: 768px) {
+      .grid-detalle {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* CONTROL DE TAMAÑO DE LA IMAGEN */
+    .contenedor-imagen-detalle {
+      width: 100%;
+      max-height: 420px;
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .contenedor-imagen-detalle img,
+    #imagen-producto,
+    .grid-detalle img {
+      width: 100% !important;
+      max-height: 420px !important;
+      object-fit: contain !important;
+      display: block !important;
+      border-radius: 8px !important;
+    }
+
+    /* DETALLES DE TEXTO Y PRECIOS */
+    .info-detalle h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .subtitulo-marca {
+      font-size: 0.8rem;
+      color: #888888;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+    }
+
+    .precios-detalle {
+      margin: 20px 0;
+    }
+
+    .precio-lista-detalle {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+
+    .precio-transf-detalle {
+      font-size: 1.2rem;
+      color: #25d366;
+      font-weight: bold;
+    }
+
+    .descripcion-producto {
+      color: #cccccc;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 20px 0 30px 0;
+    }
+
+    .btn-agregar-detalle {
+      width: 100%;
+      background-color: #25d366 !important;
+      color: #000000 !important;
+      border: none !important;
+      padding: 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-agregar-detalle:hover {
+      background-color: #1ebd56 !important;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">
+        <img src="img/logo.jpg" alt="MateCico" class="logo-img">
+        <span>MateCico</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">INICIO</a>
+        <a href="index.html#productos">PRODUCTOS</a>
+        <a href="contacto.html">CONTACTO</a>
+        <a href="carrito.html">🛒 CARRITO</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="seccion-producto">
+    <div class="breadcrumb">
+      <a href="index.html">INICIO</a> . <a href="index.html#productos">PRODUCTOS</a> . <span id="breadcrumb-nombre">MATE IMPERIAL NEGRO</span>
+    </div>
+
+    <div class="grid-detalle">
+      <div class="contenedor-imagen-detalle">
+        <img id="imagen-producto" src="" alt="Producto">
+      </div>
+
+      <div class="info-detalle">
+        <div class="subtitulo-marca">MATECICO</div>
+        <h1 id="nombre-producto">Cargando...</h1>
+        
+        <div class="precios-detalle">
+          <div id="precio-lista" class="precio-lista-detalle">$0</div>
+          <div id="precio-transferencia" class="precio-transf-detalle">💚 $0 (Transferencia)</div>
+        </div>
+
+        <p id="descripcion-producto" class="descripcion-producto">
+          Producto fabricado con materiales de alta calidad, ideal para disfrutar de tus mejores momentos materos.
+        </p>
+
+        <button id="btn-agregar-detalle" class="btn-agregar-detalle">AGREGAR AL CARRITO</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/productos.js"></script>
+  <script src="js/script.js"></script>
+  
+  <script>
+    // Lógica para cargar dinámicamente los datos del producto segun la URL ?id=X
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = parseInt(params.get('id')) || 1;
+
+      if (typeof productos !== 'undefined') {
+        const prod = productos.find(p => p.id === id) || productos[0];
+        if (prod) {
+          const precioNum = typeof prod.precio === 'number' 
+            ? prod.precio 
+            : parseFloat(prod.precio.toString().replace(/[^0-9]/g, '')) || 0;
+          const precioTransf = Math.round(precioNum * 0.9);
+
+          document.getElementById('imagen-producto').src = prod.imagen;
+          document.getElementById('nombre-producto').innerText = prod.nombre;
+          document.getElementById('breadcrumb-nombre').innerText = prod.nombre.toUpperCase();
+          document.getElementById('precio-lista').innerText = `$${precioNum.toLocaleString('es-AR')}`;
+          document.getElementById('precio-transferencia').innerText = `💚 $${precioTransf.toLocaleString('es-AR')} (Transferencia)`;
+
+          if (prod.descripcion) {
+            document.getElementById('descripcion-producto').innerText = prod.descripcion;
+          }
+
+          document.getElementById('btn-agregar-detalle').onclick = () => {
+            agregarAlCarrito(prod.id);
+          };
+        }
+      }
+    });
+  </script>
+</body>
+</html>
