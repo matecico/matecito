@@ -72,26 +72,40 @@ async function pagar() {
     return;
   }
 
+  // Mapeamos los campos del carrito a lo que espera Mercado Pago / Telegram en server.js
+  const itemsFormateados = carrito.map(producto => ({
+    title: producto.nombre,
+    unit_price: Number(producto.precio),
+    quantity: Number(producto.cantidad || 1)
+  }));
+
   try {
-    const respuesta = await fetch('/crear-preferencia', {
+    // 1. Ruta corregida a '/api/crear-preferencia'
+    const respuesta = await fetch('/api/crear-preferencia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: carrito })
+      body: JSON.stringify({ 
+        items: itemsFormateados,
+        cliente: {
+          nombre: 'Cliente Web',
+          direccion: 'Dirección a coordinar',
+          telefono: 'Sin especificar'
+        }
+      })
     });
 
     if (respuesta.ok) {
       const data = await respuesta.json();
       if (data.init_point) {
+        // Redirige a Mercado Pago
         window.location.href = data.init_point;
         return;
       }
     }
     
-    // Si no responde el servidor backend local, avisa limpiamente
-    alert('Para procesar el pago real debe estar ejecutándose el servidor (Node.js/server.js).');
+    alert('No se pudo generar el checkout. Revisa la consola.');
   } catch (error) {
-    alert('El servidor local no está conectado. Ejecutá "node server.js" en la terminal.');
+    console.error('Error al pagar:', error);
+    alert('Error de conexión con el servidor.');
   }
 }
-
-document.addEventListener('DOMContentLoaded', cargarCarrito);
