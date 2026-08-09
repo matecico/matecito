@@ -6,7 +6,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.')); // Permite servir tus archivos HTML directamente desde la raíz
+app.use(express.static('.'));
 
 // 1. DATOS DE MERCADO PAGO Y TELEGRAM
 const MP_ACCESS_TOKEN = 'APP_USR-1754797691994307-080810-e339511cbe3a9b0c843f612d56f1bb76-3601405030';
@@ -20,7 +20,7 @@ const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
 async function enviarNotificacionTelegram(mensaje) {
     try {
         const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        await fetch(url, {
+        const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -29,22 +29,36 @@ async function enviarNotificacionTelegram(mensaje) {
                 parse_mode: 'HTML'
             })
         });
-        console.log('Notificación enviada a Telegram');
+        const resData = await res.json();
+        if (!resData.ok) {
+            console.error('Error de Telegram API:', resData.description);
+        } else {
+            console.log('Notificación enviada con éxito a Telegram');
+        }
     } catch (error) {
         console.error('Error al enviar mensaje a Telegram:', error);
     }
 }
 
-// 3. RUTA PARA CREAR LA PREFERENCIA DE PAGO Y NOTIFICAR COMPRA
+// 3. RUTA PARA CREAR PREFERENCIA Y NOTIFICAR
 app.post('/api/crear-preferencia', async (req, res) => {
     try {
         const { items, cliente } = req.body;
 
-        // Calcular total
-        const total = items.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
-        const listaProd = items.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
+        // NORMALIZAR PRODUCTOS (Adapta cualquier formato de carrito)
+        const itemsFormateados = (items || []).map(item => ({
+            id: String(item.id || '1'),
+            title: String(item.title || item.nombre || 'Producto MateCico'),
+            unit_price: Number(item.unit_price || item.precio || 0),
+            quantity: Number(item.quantity || item.cantidad || 1),
+            currency_id: 'ARS'
+        }));
 
-        // Mensaje directo a Telegram APENAS hacen clic en pagar
+        // Calcular total y lista
+        const total = itemsFormateados.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
+        const listaProd = itemsFormateados.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
+
+        // Mensaje limpio para Telegram
         const avisoTelegram = `🛒 <b>¡NUEVO PEDIDO INICIADO!</b> 🛒\n\n` +
             `👤 <b>Cliente:</b> ${cliente?.nombre || 'No especificado'}\n` +
             `📍 <b>Dirección:</b> ${cliente?.direccion || 'No especificada'}\n` +
@@ -58,7 +72,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
 
         const response = await preference.create({
             body: {
-                items: items,
+                items: itemsFormateados,
                 back_urls: {
                     success: `${URL_PUBLICA_SERVER}/index.html`,
                     failure: `${URL_PUBLICA_SERVER}/carrito.html`,
@@ -81,7 +95,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
     }
 });
 
-// 4. WEBHOOK PARA RECIBIR NOTIFICACIONES DE MERCADO PAGO
+// 4. WEBHOOK PARA PAGOS APROBADOS
 app.post('/api/webhook-mp', async (req, res) => {
     try {
         const { type, data } = req.body;
@@ -91,9 +105,7 @@ app.post('/api/webhook-mp', async (req, res) => {
 
             if (paymentId) {
                 const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-                    headers: {
-                        Authorization: `Bearer ${MP_ACCESS_TOKEN}`
-                    }
+                    headers: { Authorization: `Bearer ${MP_ACCESS_TOKEN}` }
                 });
 
                 if (response.ok) {
