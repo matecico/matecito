@@ -108,4 +108,72 @@ async function pagar() {
     console.error('Error al pagar:', error);
     alert('Error de conexión con el servidor.');
   }
-}
+}// 6. INICIALIZAR Y MANEJAR EVENTOS
+document.addEventListener('DOMContentLoaded', () => {
+    renderizarCatalogo();
+    renderizarCarrito();
+
+    // Botón Vaciar
+    const btnVaciar = Array.from(document.querySelectorAll('button, a')).find(el => 
+        el.innerText.toLowerCase().includes('vaciar')
+    );
+    if (btnVaciar) {
+        btnVaciar.addEventListener('click', (e) => {
+            e.preventDefault();
+            carrito = [];
+            guardarCarrito();
+            renderizarCarrito();
+        });
+    }
+
+    // Botón PAGAR (Busca por ID 'btn-pagar' o cualquier botón/enlace que diga 'pagar')
+    const btnPagar = document.getElementById('btn-pagar') || 
+                     Array.from(document.querySelectorAll('button, a')).find(el => 
+                         el.innerText.toLowerCase().includes('pagar')
+                     );
+
+    if (btnPagar) {
+        btnPagar.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            if (!carrito || carrito.length === 0) {
+                alert('El carrito está vacío. Agregá un producto primero.');
+                return;
+            }
+
+            const inputs = document.querySelectorAll('input, textarea');
+            const cliente = {
+                nombre: inputs[0]?.value || 'Cliente Test',
+                telefono: inputs[1]?.value || '1112345678',
+                direccion: inputs[2]?.value || 'Direccion Test'
+            };
+
+            btnPagar.innerText = 'Cargando...';
+            btnPagar.disabled = true;
+
+            try {
+                const response = await fetch('/api/crear-preferencia', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: carrito, cliente: cliente })
+                });
+
+                const data = await response.json();
+
+                if (data.init_point) {
+                    window.location.href = data.init_point;
+                } else {
+                    alert('Hubo un problema al generar la preferencia de pago.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ocurrió un error al conectar con el servidor.');
+            } finally {
+                btnPagar.innerText = 'PAGAR';
+                btnPagar.disabled = false;
+            }
+        });
+    } else {
+        console.warn('No se encontró el botón de pagar en el DOM.');
+    }
+});
