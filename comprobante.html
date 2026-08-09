@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante X - MateCico</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .factura-box {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 2px solid #222;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .header-factura {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #222;
+            padding-bottom: 15px;
+        }
+        .empresa-info h2 {
+            font-size: 24px;
+            color: #111;
+            margin-bottom: 5px;
+        }
+        .empresa-info p {
+            font-size: 13px;
+            color: #555;
+        }
+        .box-letra-x {
+            text-align: center;
+            border: 2px solid #222;
+            padding: 5px 15px;
+            background: #fafafa;
+        }
+        .box-letra-x .letra {
+            font-size: 36px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .box-letra-x .leyenda {
+            font-size: 9px;
+            font-weight: bold;
+            color: #555;
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        .seccion-datos {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .datos-bloque h4 {
+            font-size: 14px;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 5px;
+            padding-bottom: 2px;
+            text-transform: uppercase;
+            color: #444;
+        }
+
+        table.tabla-productos {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        table.tabla-productos th {
+            background: #222;
+            color: #fff;
+            text-align: left;
+            padding: 8px;
+            font-weight: normal;
+        }
+        table.tabla-productos td {
+            border-bottom: 1px solid #eee;
+            padding: 10px 8px;
+        }
+        table.tabla-productos tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .totales-box {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 14px;
+        }
+        .totales-box .total-final {
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+            border-top: 2px solid #222;
+            display: inline-block;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+
+        .estado-pago {
+            background: #e8f8f5;
+            border: 1px solid #2ecc71;
+            color: #27ae60;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .btn-imprimir {
+            flex: 2;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-imprimir:hover { background: #219150; }
+        .btn-volver {
+            flex: 1;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            font-size: 14px;
+            border-radius: 5px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .factura-box { border: none; box-shadow: none; width: 100%; max-width: 100%; padding: 0; }
+            .acciones { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="factura-box">
+
+    <div class="header-factura">
+        <div class="empresa-info">
+            <h2>MateCico</h2>
+            <p>Venta de Mates y Accesorios</p>
+            <p>Atención al Cliente: +54 9 11 6014-9903</p>
+        </div>
+        <div class="box-letra-x">
+            <div class="letra">X</div>
+            <div class="leyenda">DOCUMENTO NO VÁLIDO<br>COMO FACTURA</div>
+        </div>
+    </div>
+
+    <div class="estado-pago">
+        ✅ PAGO APROBADO - COMPROBANTE DE COMPRA
+    </div>
+
+    <div class="seccion-datos">
+        <div class="datos-bloque">
+            <h4>Detalle del Comprobante</h4>
+            <p><b>Fecha:</b> <span id="comp-fecha">-</span></p>
+            <p><b>N° Operación MP:</b> <span id="comp-mp-id">-</span></p>
+            <p><b>Forma de Pago:</b> Mercado Pago</p>
+        </div>
+        <div class="datos-bloque" style="text-align: right;">
+            <h4>Emisión</h4>
+            <p><b>Origen:</b> Tienda Online MateCico</p>
+            <p><b>Estado:</b> Procesado para envío</p>
+        </div>
+    </div>
+
+    <table class="tabla-productos">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th style="text-align: center;">Cant.</th>
+                <th style="text-align: right;">Precio Unit.</th>
+                <th style="text-align: right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-items">
+        </tbody>
+    </table>
+
+    <div class="totales-box">
+        <p class="total-final">Total Pagado: <span id="comp-total">$0</span></p>
+    </div>
+
+    <div class="acciones">
+        <button class="btn-imprimir" onclick="window.print()">🖨️ Descargar Comprobante / PDF</button>
+        <a href="index.html" class="btn-volver">← Volver al inicio</a>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const paymentId = params.get('payment_id') || params.get('collection_id') || 'S/N';
+        
+        document.getElementById('comp-mp-id').innerText = paymentId;
+        document.getElementById('comp-fecha').innerText = new Date().toLocaleDateString('es-AR', {
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        let carritoGuardado = [];
+        try {
+            carritoGuardado = JSON.parse(localStorage.getItem('carrito')) || [];
+        } catch(e) {
+            carritoGuardado = [];
+        }
+
+        const tabla = document.getElementById('tabla-items');
+        let totalAcumulado = 0;
+
+        if (carritoGuardado.length > 0) {
+            tabla.innerHTML = '';
+            carritoGuardado.forEach(prod => {
+                const precio = Number(prod.precio || prod.unit_price || 0);
+                const cant = Number(prod.cantidad || prod.quantity || 1);
+                const subtotal = precio * cant;
+                totalAcumulado += subtotal;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><b>${prod.nombre || prod.title}</b></td>
+                    <td style="text-align: center;">${cant}</td>
+                    <td style="text-align: right;">$${precio.toLocaleString('es-AR')}</td>
+                    <td style="text-align: right;">$${subtotal.toLocaleString('es-AR')}</td>
+                `;
+                tabla.appendChild(tr);
+            });
+
+            document.getElementById('comp-total').innerText = `$${totalAcumulado.toLocaleString('es-AR')}`;
+        } else {
+            tabla.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center; padding: 20px; color: #777;">
+                        Compra registrada exitosamente a través de Mercado Pago.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('comp-total').innerText = 'Aprobado';
+        }
+
+        localStorage.removeItem('carrito');
+    });
+</script>
+
+</body>
+</html>

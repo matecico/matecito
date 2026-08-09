@@ -1,45 +1,47 @@
+// js/productos.js
+
 const productos = [
   {
     id: 1,
     nombre: "Set Matero Completo Premium",
     precio: 55275,
     imagen: "img/comboset.png",
-    descripcion: "Incluye bolso matero, termo, mate y yerbera."
+    descripcion: "Mate Imperial Deluxe con interior de acero inoxidable, canasta de cuerina negra, termo media manija gris, set de latas negras y bombilla pico de loro."
   },
   {
     id: 2,
     nombre: "Mate Imperial Interior Calabaza",
-    precio: 32514,
+    precio: 31000,
     imagen: "img/matecalabaza.png",
-    descripcion: "Calabaza seleccionada con virola de alpaca."
+    descripcion: "Virola de alpaca, interior de calabaza, cuero negro clásico y base reforzada."
   },
   {
     id: 3,
     nombre: "Mate Imperial Negro",
-    precio: 27100,
+    precio: 28500,
     imagen: "img/mateimperial.png",
-    descripcion: "Mate Imperial de cuero vacuno y virola de alpaca."
+    descripcion: "Virola de acero, interior de acero inoxidable, cuero negro y base reforzada."
   },
   {
     id: 4,
     nombre: "Termo de Acero Inoxidable 1L",
     precio: 21680,
     imagen: "img/termo.png",
-    descripcion: "Mantiene la temperatura fría o caliente por más de 12 horas."
+    descripcion: "Termo de 1L con media manija, pico cebador y color gris."
   },
   {
     id: 5,
     nombre: "Peluche MateCico",
     precio: 21680,
     imagen: "img/peluche.png",
-    descripcion: "Peluche exclusivo de nuestra mascota MateCico."
+    descripcion: "Peluche de mate de 15 cm, especial para regalos."
   },
   {
     id: 6,
     nombre: "Canasta Matera",
     precio: 10838,
     imagen: "img/canasta.png",
-    descripcion: "Canasta matera de cuero reforzada."
+    descripcion: "Canasta matera con división interna, cuero grueso color negro."
   },
   {
     id: 7,
@@ -53,6 +55,6 @@ const productos = [
     nombre: "Bombilla Pico de Loro",
     precio: 4878,
     imagen: "img/bombilla.png",
-    descripcion: "Bombilla pico de loro de acero inoxidable desarmable."
+    descripcion: "Bombilla pico de loro de acero inoxidable."
   }
 ];

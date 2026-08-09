@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito de Compras - MateCico</title>
+  <title>MateCico - Carrito de Compras</title>
   
   <style>
     * {
@@ -18,6 +18,7 @@
       font-family: Arial, sans-serif;
       overflow-x: hidden;
       min-height: 100vh;
+      width: 100%;
     }
 
     a, a:visited, a:hover, a:active {
@@ -25,45 +26,64 @@
       color: inherit !important;
     }
 
-    /* NAVBAR */
+    /* NAVBAR RESPONSIVE */
     .navbar {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      padding: 15px 30px;
-      background-color: #181818;
-      border-bottom: 1px solid #262626;
+      padding: 15px 10px;
+      background-color: #1e1e1e;
+      border-bottom: 1px solid #2a2a2a;
+      gap: 12px;
+      width: 100%;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       font-weight: bold;
       font-size: 1.2rem;
     }
 
     .logo-img {
-      width: 40px !important;
-      height: 40px !important;
+      width: 38px !important;
+      height: 38px !important;
       object-fit: cover !important;
       border-radius: 50%;
     }
 
     .nav-links {
       display: flex;
-      gap: 20px;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .nav-links a {
       color: #cccccc !important;
       font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .nav-links a:hover {
       color: #25d366 !important;
+    }
+
+    /* ESTILOS PARA COMPUTADORAS (Escritorio) */
+    @media (min-width: 769px) {
+      .navbar {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 15px 30px;
+      }
+      .nav-links {
+        gap: 25px;
+      }
+      .nav-links a {
+        font-size: 0.9rem;
+      }
     }
 
     /* CONTENEDOR PRINCIPAL */
@@ -516,11 +536,3 @@
   <script src="js/productos.js"></script>
   <script src="js/script.js?v=100"></script>
 </body>
-</html><div class="caja-envio">
-  <label for="input-cp">Calcular Envío (Código Postal) *</label>
-  <div class="grupo-input-cp">
-    <input type="text" id="input-cp" placeholder="Ej: 1425" maxlength="5" required>
-    <button type="button" id="btn-calcular-cp" onclick="calcularCostoEnvio()">Calcular</button>
-  </div>
-  <div id="mensaje-envio" class="resultado-envio"></div>
-</div>

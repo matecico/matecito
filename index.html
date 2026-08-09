@@ -18,6 +18,7 @@
       color: #ffffff;
       font-family: Arial, sans-serif;
       overflow-x: hidden;
+      width: 100%;
     }
 
     a, a:visited, a:hover, a:active {
@@ -30,41 +31,52 @@
       height: auto;
     }
 
-    /* NAVBAR */
+    /* NAVBAR RESPONSIVE */
     .navbar {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      padding: 15px 30px;
+      padding: 15px 10px;
       background-color: #1e1e1e;
       border-bottom: 1px solid #2a2a2a;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .navbar-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       font-weight: bold;
       font-size: 1.2rem;
     }
 
     .logo-img {
-      width: 42px !important;
-      height: 42px !important;
+      width: 38px !important;
+      height: 38px !important;
       object-fit: cover !important;
       border-radius: 50%;
     }
 
     .nav-links {
       display: flex;
-      gap: 20px;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .nav-links a {
       color: #cccccc !important;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
     }
 
     .nav-links a:hover {
@@ -74,13 +86,13 @@
     /* HERO SECTION */
     .hero {
       text-align: center;
-      padding: 40px 20px;
+      padding: 35px 20px;
       background-color: #181818;
       border-bottom: 1px solid #252525;
     }
 
     .hero h1 {
-      font-size: 2rem;
+      font-size: 1.8rem;
       margin-bottom: 8px;
       color: #ffffff;
     }
@@ -88,6 +100,7 @@
     .hero p {
       color: #aaaaaa;
       margin-bottom: 18px;
+      font-size: 0.95rem;
     }
 
     .btn-hero {
@@ -99,20 +112,50 @@
       font-weight: bold;
     }
 
-    /* CONTENEDOR PRINCIPAL Y GRILLA MULTI-COLUMNA */
+    /* BARRA DE BÚSQUEDA */
+    .buscador-container {
+      margin: 0 auto 25px auto;
+      width: 100%;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+
+    .input-busqueda {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 1rem;
+      background-color: #1e1e1e;
+      color: #ffffff;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      max-width: 100%;
+    }
+
+    .input-busqueda:focus {
+      border-color: #25d366;
+      box-shadow: 0 0 8px rgba(37, 211, 102, 0.3);
+    }
+
+    .input-busqueda::placeholder {
+      color: #888888;
+    }
+
+    /* CONTENEDOR PRINCIPAL Y GRILLA */
     .contenedor-principal {
       max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
+      margin: 25px auto;
+      padding: 0 15px;
     }
 
     .titulo-seccion {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       color: #ffffff;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
-    /* FORZA A LOS PRODUCTOS A PONERSE EN FILAS Y COLUMNAS */
     #contenedor-productos, .productos-grid {
       display: grid !important;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
@@ -120,7 +163,6 @@
       width: 100% !important;
     }
 
-    /* TARJETAS DE PRODUCTO CORREGIDAS */
     #contenedor-productos > div, .card-producto, .producto {
       background-color: #1e1e1e !important;
       border: 1px solid #2a2a2a !important;
@@ -132,12 +174,10 @@
       align-items: center !important;
       text-align: center !important;
       width: 100% !important;
-      max-width: none !important;
       margin: 0 !important;
       height: 100%;
     }
 
-    /* CONTENEDOR DE LA IMAGEN EN LA TARJETA */
     .card-producto img, .producto img, #contenedor-productos img {
       max-width: 100% !important;
       max-height: 170px !important;
@@ -148,7 +188,6 @@
       margin: 0 auto 10px auto;
     }
 
-    /* TITULOS Y TEXTOS DENTRO DE LAS TARJETAS */
     .card-producto h3, .producto h3, #contenedor-productos h3 {
       font-size: 1rem !important;
       color: #ffffff !important;
@@ -157,7 +196,6 @@
       font-weight: 600;
     }
 
-    /* PRECIOS Y DESCUENTOS */
     .precio, .precio-lista {
       font-size: 1.1rem !important;
       font-weight: bold !important;
@@ -172,7 +210,6 @@
       margin-bottom: 10px;
     }
 
-    /* BOTON AGREGAR AL CARRITO */
     .card-producto button, .producto button, .btn-agregar, #contenedor-productos button {
       background-color: #25d366 !important;
       color: #000000 !important;
@@ -184,11 +221,21 @@
       cursor: pointer !important;
       width: 100% !important;
       margin-top: 10px !important;
-      transition: background-color 0.2s;
     }
 
-    .card-producto button:hover, .producto button:hover, .btn-agregar:hover, #contenedor-productos button:hover {
-      background-color: #1ebd56 !important;
+    /* ESTILOS PARA COMPUTADORAS (Escritorio) */
+    @media (min-width: 769px) {
+      .navbar {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 15px 30px;
+      }
+      .nav-links {
+        gap: 25px;
+      }
+      .nav-links a {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -217,6 +264,17 @@
 
   <main class="contenedor-principal">
     <h2 id="productos" class="titulo-seccion">Productos Destacados</h2>
+    
+    <!-- BARRA DE BÚSQUEDA -->
+    <div class="buscador-container">
+      <input 
+        type="text" 
+        id="input-busqueda" 
+        class="input-busqueda" 
+        placeholder="Buscar productos (ej: mate, termo, peluche, alpaca)..."
+      >
+    </div>
+
     <div id="contenedor-productos" class="productos-grid">
       <!-- Carga dinámicamente desde JS -->
     </div>

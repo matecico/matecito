@@ -13,26 +13,62 @@ function guardarCarrito() {
   localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-// 2. MOSTRAR PRODUCTOS EN INDEX.HTML (Desde js/productos.js)
-function cargarProductosInicio() {
+// 2. MOSTRAR PRODUCTOS EN INDEX.HTML (Soporta filtrado por lista opcional)
+function cargarProductosInicio(productosAMostrar = null) {
   const contenedor = document.getElementById('contenedor-productos');
   if (!contenedor) return;
 
-  const lista = (typeof productos !== 'undefined') ? productos : [];
+  // Si no se le pasa una lista filtrada, usa el array global 'productos'
+  const lista = productosAMostrar !== null 
+    ? productosAMostrar 
+    : (typeof productos !== 'undefined' ? productos : []);
+
   contenedor.innerHTML = '';
+
+  if (lista.length === 0) {
+    contenedor.innerHTML = '<p style="color: #aaa; text-align: center; grid-column: 1/-1; padding: 20px;">No se encontraron productos que coincidan con tu búsqueda.</p>';
+    return;
+  }
 
   lista.forEach(prod => {
     const div = document.createElement('div');
     div.className = 'tarjeta-producto';
     div.innerHTML = `
-      <img src="${prod.imagen}" alt="${prod.nombre}">
-      <h3>${prod.nombre}</h3>
+      <img src="${prod.imagen}" alt="${prod.nombre}" onclick="verDetalle(${prod.id})" style="cursor:pointer;">
+      <h3 onclick="verDetalle(${prod.id})" style="cursor:pointer;">${prod.nombre}</h3>
       <p class="descripcion">${prod.descripcion || ''}</p>
       <p class="precio">$${prod.precio.toLocaleString('es-AR')}</p>
-      <button type="button" onclick="agregarAlCarrito(${prod.id})">Agregar al Carrito</button>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
+        <button type="button" onclick="verDetalle(${prod.id})" style="background:#444; color:#fff; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">Ver Detalle</button>
+        <button type="button" onclick="agregarAlCarrito(${prod.id})" style="background:#25d366; color:#000; font-weight:bold; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">Agregar</button>
+      </div>
     `;
     contenedor.appendChild(div);
   });
+}
+
+// 2.1 LÓGICA DEL BUSCADOR EN TIEMPO REAL
+function inicializarBuscador() {
+  const inputBusqueda = document.getElementById('input-busqueda');
+  if (!inputBusqueda) return;
+
+  inputBusqueda.addEventListener('input', (e) => {
+    const texto = e.target.value.toLowerCase().trim();
+    const listaCompleta = (typeof productos !== 'undefined') ? productos : [];
+
+    const productosFiltrados = listaCompleta.filter(prod => {
+      const nombre = (prod.nombre || '').toLowerCase();
+      const desc = (prod.descripcion || '').toLowerCase();
+      return nombre.includes(texto) || desc.includes(texto);
+    });
+
+    cargarProductosInicio(productosFiltrados);
+  });
+}
+
+// 2.2 ABRIR DETALLE EN UNA NUEVA PESTAÑA
+function verDetalle(idProducto) {
+  window.open(`producto.html?id=${idProducto}`, '_blank');
 }
 
 function agregarAlCarrito(idProducto) {
@@ -133,13 +169,12 @@ function calcularCostoEnvio() {
     return;
   }
 
-  // Tarifas según rango de CP en Argentina
   if (cp >= 1000 && cp <= 1499) {
-    costoEnvio = 3500; // CABA
+    costoEnvio = 3500;
   } else if (cp >= 1500 && cp <= 1999) {
-    costoEnvio = 4500; // GBA / Prov. Buenos Aires
+    costoEnvio = 4500;
   } else {
-    costoEnvio = 7500; // Resto del país / Interior
+    costoEnvio = 7500;
   }
 
   if (mensajeEnvio) {
@@ -307,6 +342,7 @@ function enviarConsultaContacto(e) {
 }
 
 // FUNCIONES GLOBALES
+window.verDetalle = verDetalle;
 window.agregarAlCarrito = agregarAlCarrito;
 window.cambiarCantidad = cambiarCantidad;
 window.eliminarDelCarrito = eliminarDelCarrito;
@@ -318,6 +354,7 @@ window.enviarConsultaContacto = enviarConsultaContacto;
 // 9. VINCULACIÓN DE EVENTOS AL CARGAR LA PÁGINA
 document.addEventListener('DOMContentLoaded', () => {
   cargarProductosInicio();
+  inicializarBuscador(); // Escucha lo que se escribe en el buscador
   renderizarCarrito();
 
   const btnCalcular = document.getElementById('btn-calcular-cp');
@@ -358,4 +395,4 @@ document.addEventListener('DOMContentLoaded', () => {
       enviarConsultaContacto(e);
     };
   }
-});
+}); 

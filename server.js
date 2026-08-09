@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static('.'));
 
 // 1. DATOS DE MERCADO PAGO Y TELEGRAM
-const MP_ACCESS_TOKEN = 'APP_USR-1754797691994307-080810-e339511cbe3a9b0c843f612d56f1bb76-3601405030';
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
 const TELEGRAM_BOT_TOKEN = '8966386944:AAH8OTZoT7V-ZGS9WHNtW99NjtCBj0iiZYE';
 const TELEGRAM_CHAT_ID = '7691781211';
 
@@ -19,7 +19,11 @@ const URL_PUBLICA_SERVER = 'https://matecito.onrender.com';
 // URL del Frontend en Netlify (OFICIAL)
 const URL_FRONTEND = 'https://matecico.netlify.app';
 
-const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
+// Configuración del cliente de Mercado Pago en modo producción explícito
+const client = new MercadoPagoConfig({ 
+    accessToken: MP_ACCESS_TOKEN,
+    options: { timeout: 5000 }
+});
 
 // 2. ENVÍO DE MENSAJES A TELEGRAM
 async function enviarNotificacionTelegram(mensaje) {
@@ -79,7 +83,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
             body: {
                 items: itemsFormateados,
                 back_urls: {
-                    success: `${URL_FRONTEND}/comprobante.html`, // 👈 Redirige al Comprobante X al aprobar
+                    success: `${URL_FRONTEND}/comprobante.html`,
                     failure: `${URL_FRONTEND}/carrito.html`,
                     pending: `${URL_FRONTEND}/carrito.html`
                 },
