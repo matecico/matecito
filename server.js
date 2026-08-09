@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+import express from 'express';
+import cors from 'cors';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 const app = express();
 
@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
-// 1. CONFIGURACIÓN Y CREDENCIALES
+// 1. DATOS DE MERCADO PAGO Y TELEGRAM
 const MP_ACCESS_TOKEN = 'APP_USR-1754797691994307-080810-e339511cbe3a9b0c843f612d56f1bb76-3601405030';
 const TELEGRAM_BOT_TOKEN = '8966386944:AAH8OTZoT7V-ZGS9WHNtW99NjtCBj0iiZYE';
 const TELEGRAM_CHAT_ID = '7691781211';
