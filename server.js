@@ -16,8 +16,8 @@ const TELEGRAM_CHAT_ID = '7691781211';
 // URL del Backend en Render (para Webhooks de Mercado Pago)
 const URL_PUBLICA_SERVER = 'https://matecito.onrender.com';
 
-// URL del Frontend en Netlify (URL actualizada)
-const URL_FRONTEND = 'https://matecico.netlify.app';
+// URL del Frontend en Netlify (ACTUALIZADA)
+const URL_FRONTEND = 'https://mmatecico.netlify.app';
 
 const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
 
@@ -79,7 +79,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
             body: {
                 items: itemsFormateados,
                 back_urls: {
-                    success: `${URL_FRONTEND}/index.html`,
+                    success: `${URL_FRONTEND}/comprobante.html`, // 👈 Redirige al Comprobante X al aprobar
                     failure: `${URL_FRONTEND}/carrito.html`,
                     pending: `${URL_FRONTEND}/carrito.html`
                 },
