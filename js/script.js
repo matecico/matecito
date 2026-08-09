@@ -1,23 +1,63 @@
-// 1. ESTADO GLOBAL
+// 1. MEMORIA Y ESTADO GLOBAL DEL CARRITO
 let carrito = [];
 try {
   carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   if (!Array.isArray(carrito)) carrito = [];
-} catch (err) {
+} catch (e) {
   carrito = [];
 }
 
 let costoEnvio = 0;
 
 function guardarCarrito() {
-  try {
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-  } catch (err) {
-    console.error('Error al guardar en localStorage:', err);
-  }
+  localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-// 2. RENDERIZAR CARRITO
+// 2. MOSTRAR PRODUCTOS EN INDEX.HTML (Desde js/productos.js)
+function cargarProductosInicio() {
+  const contenedor = document.getElementById('contenedor-productos');
+  if (!contenedor) return;
+
+  const lista = (typeof productos !== 'undefined') ? productos : [];
+  contenedor.innerHTML = '';
+
+  lista.forEach(prod => {
+    const div = document.createElement('div');
+    div.className = 'tarjeta-producto';
+    div.innerHTML = `
+      <img src="${prod.imagen}" alt="${prod.nombre}">
+      <h3>${prod.nombre}</h3>
+      <p class="descripcion">${prod.descripcion || ''}</p>
+      <p class="precio">$${prod.precio.toLocaleString('es-AR')}</p>
+      <button type="button" onclick="agregarAlCarrito(${prod.id})">Agregar al Carrito</button>
+    `;
+    contenedor.appendChild(div);
+  });
+}
+
+function agregarAlCarrito(idProducto) {
+  const lista = (typeof productos !== 'undefined') ? productos : [];
+  const prod = lista.find(p => Number(p.id) === Number(idProducto));
+  if (!prod) return;
+
+  const existe = carrito.find(item => Number(item.id) === Number(prod.id));
+  if (existe) {
+    existe.cantidad = (existe.cantidad || 1) + 1;
+  } else {
+    carrito.push({
+      id: prod.id,
+      nombre: prod.nombre,
+      precio: prod.precio,
+      imagen: prod.imagen,
+      cantidad: 1
+    });
+  }
+
+  guardarCarrito();
+  alert(`✅ ${prod.nombre} agregado al carrito`);
+}
+
+// 3. RENDERIZAR CARRITO EN CARRITO.HTML
 function renderizarCarrito() {
   const contenedor = document.getElementById('contenedor-carrito');
   if (!contenedor) return;
@@ -30,19 +70,17 @@ function renderizarCarrito() {
 
   contenedor.innerHTML = '';
   carrito.forEach((prod, index) => {
-    const precio = Number(prod.unit_price || prod.precio || 0);
-    const cant = Number(prod.quantity || prod.cantidad || 1);
+    const precio = Number(prod.precio || 0);
+    const cant = Number(prod.cantidad || 1);
     const subtotal = precio * cant;
-    const titulo = prod.title || prod.nombre || 'Producto';
-    const img = prod.imagen || prod.img || '';
 
     const div = document.createElement('div');
     div.className = 'item-carrito';
     div.innerHTML = `
       <div class="info-producto-carrito">
-        ${img ? `<img src="${img}" alt="${titulo}" class="img-item-carrito">` : ''}
+        ${prod.imagen ? `<img src="${prod.imagen}" alt="${prod.nombre}" class="img-item-carrito">` : ''}
         <div class="detalles-item">
-          <h4>${titulo}</h4>
+          <h4>${prod.nombre}</h4>
           <span>$${precio.toLocaleString('es-AR')} c/u</span>
         </div>
       </div>
@@ -64,11 +102,10 @@ function renderizarCarrito() {
 
 function cambiarCantidad(index, cambio) {
   if (carrito[index]) {
-    let cant = Number(carrito[index].quantity || carrito[index].cantidad || 1) + cambio;
+    let cant = (carrito[index].cantidad || 1) + cambio;
     if (cant <= 0) {
       carrito.splice(index, 1);
     } else {
-      carrito[index].quantity = cant;
       carrito[index].cantidad = cant;
     }
     guardarCarrito();
@@ -82,24 +119,28 @@ function eliminarDelCarrito(index) {
   renderizarCarrito();
 }
 
-window.cambiarCantidad = cambiarCantidad;
-window.eliminarDelCarrito = eliminarDelCarrito;
-
-// 3. CALCULAR ENVÍO
+// 4. CALCULAR CÓDIGO POSTAL POR ZONAS
 function calcularCostoEnvio() {
   const inputCP = document.getElementById('input-cp');
   const mensajeEnvio = document.getElementById('mensaje-envio');
-  const cp = inputCP ? inputCP.value.trim() : '';
+  const cpTexto = inputCP ? inputCP.value.trim() : '';
+  const cp = parseInt(cpTexto, 10);
 
-  if (!cp) {
-    alert('⚠️ Por favor ingresá tu Código Postal para calcular el envío.');
+  if (!cpTexto || isNaN(cp)) {
+    alert('⚠️ Por favor ingresá un Código Postal válido.');
     costoEnvio = 0;
     actualizarTotales();
     return;
   }
 
-  // Costo fijo de prueba
-  costoEnvio = 4500;
+  // Tarifas según rango de CP en Argentina
+  if (cp >= 1000 && cp <= 1499) {
+    costoEnvio = 3500; // CABA
+  } else if (cp >= 1500 && cp <= 1999) {
+    costoEnvio = 4500; // GBA / Prov. Buenos Aires
+  } else {
+    costoEnvio = 7500; // Resto del país / Interior
+  }
 
   if (mensajeEnvio) {
     mensajeEnvio.style.color = '#25d366';
@@ -107,15 +148,13 @@ function calcularCostoEnvio() {
   }
 
   actualizarTotales();
-  alert(`✅ Envío calculado con éxito: $${costoEnvio.toLocaleString('es-AR')}`);
+  alert(`✅ Envío calculado con éxito para CP ${cp}: $${costoEnvio.toLocaleString('es-AR')}`);
 }
-
-window.calcularCostoEnvio = calcularCostoEnvio;
 
 function actualizarTotales() {
   const subtotal = carrito.reduce((acc, item) => {
-    const p = Number(item.precio || item.unit_price || 0);
-    const c = Number(item.cantidad || item.quantity || 1);
+    const p = Number(item.precio || 0);
+    const c = Number(item.cantidad || 1);
     return acc + (p * c);
   }, 0);
 
@@ -134,7 +173,7 @@ function actualizarTotales() {
   }
 }
 
-// 4. VALIDACIÓN MANUAL STRICTA
+// 5. VALIDACIÓN DE FORMULARIO
 function validarCampos() {
   const nombre = document.getElementById('cliente-nombre')?.value.trim();
   const telefono = document.getElementById('cliente-telefono')?.value.trim();
@@ -155,7 +194,7 @@ function validarCampos() {
   return true;
 }
 
-// 5. PROCESAR PAGO MERCADO PAGO
+// 6. PROCESAR PAGO CON MERCADO PAGO
 async function procesarPagoMercadoPago(e) {
   if (e) e.preventDefault();
 
@@ -173,10 +212,10 @@ async function procesarPagoMercadoPago(e) {
   const notas = document.getElementById('cliente-notas')?.value.trim() || '';
 
   const itemsAEnviar = carrito.map(prod => ({
-    id: prod.id || 'prod',
-    title: prod.nombre || prod.title,
-    unit_price: Number(prod.precio || prod.unit_price),
-    quantity: Number(prod.cantidad || prod.quantity || 1)
+    id: String(prod.id),
+    title: prod.nombre,
+    unit_price: Number(prod.precio),
+    quantity: Number(prod.cantidad || 1)
   }));
 
   itemsAEnviar.push({
@@ -207,11 +246,12 @@ async function procesarPagoMercadoPago(e) {
     if (data.init_point) {
       window.location.href = data.init_point;
     } else {
-      alert('Error al generar el enlace de Mercado Pago.');
+      alert('Error al generar el enlace de Mercado Pago. Verifica la consola.');
+      console.error('Respuesta de la API:', data);
     }
   } catch (error) {
     console.error('Error enviando al servidor:', error);
-    alert('Ocurrió un error de conexión.');
+    alert('Ocurrió un error de conexión con el servidor.');
   } finally {
     if (btnPagar) {
       btnPagar.innerText = 'PAGAR';
@@ -220,7 +260,7 @@ async function procesarPagoMercadoPago(e) {
   }
 }
 
-// 6. ENVIAR A WHATSAPP
+// 7. PEDIDO POR WHATSAPP
 function enviarPedidoWhatsApp() {
   if (!carrito || carrito.length === 0) {
     alert('⚠️ El carrito está vacío.');
@@ -236,19 +276,48 @@ function enviarPedidoWhatsApp() {
 
   let mensaje = `Hola! Quiero realizar un pedido:\n\n`;
   carrito.forEach(p => {
-    mensaje += `- ${p.cantidad || p.quantity || 1}x ${p.nombre || p.title}\n`;
+    mensaje += `- ${p.cantidad || 1}x ${p.nombre}\n`;
   });
 
-  mensaje += `\n📦 Envío: $${costoEnvio}`;
+  mensaje += `\n📦 Envío: $${costoEnvio.toLocaleString('es-AR')}`;
   mensaje += `\n👤 Cliente: ${nombre}`;
   mensaje += `\n📞 Tel: ${telefono}`;
   mensaje += `\n📍 Dirección: ${direccion}, ${localidad}`;
 
-  window.open(`https://wa.me/5491112345678?text=${encodeURIComponent(mensaje)}`, '_blank');
+  window.open(`https://wa.me/5491160149903?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
-// 7. VINCULACIÓN DE EVENTOS
+// 8. ENVIAR CONSULTA DE CONTACTO POR WHATSAPP
+function enviarConsultaContacto(e) {
+  if (e) e.preventDefault();
+
+  const nombre = document.getElementById('contacto-nombre')?.value.trim();
+  const telefono = document.getElementById('contacto-telefono')?.value.trim();
+  const mensajeTexto = document.getElementById('contacto-mensaje')?.value.trim();
+
+  if (!nombre || !telefono || !mensajeTexto) {
+    alert('⚠️ Por favor completa todos los campos del formulario de contacto.');
+    return;
+  }
+
+  let mensaje = `Hola! Mi nombre es *${nombre}* (Tel: ${telefono}).\n\n`;
+  mensaje += `Tengo la siguiente consulta:\n${mensajeTexto}`;
+
+  window.open(`https://wa.me/5491160149903?text=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+// FUNCIONES GLOBALES
+window.agregarAlCarrito = agregarAlCarrito;
+window.cambiarCantidad = cambiarCantidad;
+window.eliminarDelCarrito = eliminarDelCarrito;
+window.calcularCostoEnvio = calcularCostoEnvio;
+window.procesarPagoMercadoPago = procesarPagoMercadoPago;
+window.enviarPedidoWhatsApp = enviarPedidoWhatsApp;
+window.enviarConsultaContacto = enviarConsultaContacto;
+
+// 9. VINCULACIÓN DE EVENTOS AL CARGAR LA PÁGINA
 document.addEventListener('DOMContentLoaded', () => {
+  cargarProductosInicio();
   renderizarCarrito();
 
   const btnCalcular = document.getElementById('btn-calcular-cp');
@@ -256,27 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCalcular.onclick = (e) => {
       e.preventDefault();
       calcularCostoEnvio();
-    };
-  }
-
-  const inputCP = document.getElementById('input-cp');
-  if (inputCP) {
-    inputCP.addEventListener('input', () => {
-      costoEnvio = 0;
-      const msj = document.getElementById('mensaje-envio');
-      if (msj) msj.innerText = '';
-      actualizarTotales();
-    });
-  }
-
-  const btnVaciar = document.getElementById('btn-vaciar');
-  if (btnVaciar) {
-    btnVaciar.onclick = (e) => {
-      e.preventDefault();
-      carrito = [];
-      costoEnvio = 0;
-      guardarCarrito();
-      renderizarCarrito();
     };
   }
 
@@ -288,11 +336,26 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
+  const btnPagar = document.getElementById('btn-pagar');
+  if (btnPagar) {
+    btnPagar.onclick = (e) => {
+      e.preventDefault();
+      procesarPagoMercadoPago(e);
+    };
+  }
+
   const btnFinalizar = document.getElementById('btn-finalizar');
   if (btnFinalizar) {
     btnFinalizar.onclick = (e) => {
       e.preventDefault();
       enviarPedidoWhatsApp();
+    };
+  }
+
+  const formContacto = document.getElementById('form-contacto');
+  if (formContacto) {
+    formContacto.onsubmit = (e) => {
+      enviarConsultaContacto(e);
     };
   }
 });

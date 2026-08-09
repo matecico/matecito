@@ -87,7 +87,7 @@ function calcularCostoEnvio() {
   const cp = inputCP ? inputCP.value.trim() : '';
 
   if (!cp) {
-    alert('⚠️ Por favor ingresá un Código Postal en la casilla correspondinte.');
+    alert('⚠️ Por favor ingresá un Código Postal en la casilla correspondiente.');
     if (mensajeEnvio) {
       mensajeEnvio.style.color = '#ff4d4d';
       mensajeEnvio.innerText = 'Ingresá un código postal válido';
@@ -166,7 +166,7 @@ async function procesarPagoStrict(e) {
   }
 
   if (!cp || costoEnvio === 0) {
-    alert('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
+    alert('❌ Envío no calculated: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
     if (inputCP) inputCP.focus();
     return false;
   }
@@ -193,9 +193,9 @@ async function procesarPagoStrict(e) {
   };
 
   const btnPagar = document.getElementById('btn-pagar') || 
-                   Array.from(document.querySelectorAll('button')).find(el => 
-                     el.innerText.toLowerCase().includes('pagar')
-                   );
+                    Array.from(document.querySelectorAll('button')).find(el => 
+                      el.innerText.toLowerCase().includes('pagar')
+                    );
 
   if (btnPagar) {
     btnPagar.innerText = 'Cargando...';
@@ -203,7 +203,7 @@ async function procesarPagoStrict(e) {
   }
 
   try {
-    const respuesta = await fetch('/api/crear-preferencia', {
+    const respuesta = await fetch('https://matecito.onrender.com/api/crear-preferencia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -236,7 +236,7 @@ window.pagar = procesarPagoStrict;
 document.addEventListener('DOMContentLoaded', () => {
   cargarCarrito();
 
-  // Interceptar todos los formularios HTML para evitar que envíen automáticamente
+  // Intercepta todos los formularios HTML para evitar que envíen automáticamente
   const formularios = document.querySelectorAll('form');
   formularios.forEach(form => {
     form.addEventListener('submit', (e) => {
@@ -285,9 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Botón PAGAR
   const btnPagar = document.getElementById('btn-pagar') || 
-                   Array.from(document.querySelectorAll('button, a')).find(el => 
-                     el.innerText.toLowerCase().includes('pagar')
-                   );
+                    Array.from(document.querySelectorAll('button, a')).find(el => 
+                      el.innerText.toLowerCase().includes('pagar')
+                    );
 
   if (btnPagar) {
     btnPagar.onclick = (e) => procesarPagoStrict(e);

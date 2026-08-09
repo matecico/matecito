@@ -1,6 +1,6 @@
-import express from 'express';
-import cors from 'cors';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+const express = require('express');
+const cors = require('cors');
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const app = express();
 
@@ -8,11 +8,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('.'));
 
-// 1. DATOS DE MERCADO PAGO Y TELEGRAM
+// 1. CONFIGURACIÓN Y CREDENCIALES
 const MP_ACCESS_TOKEN = 'APP_USR-1754797691994307-080810-e339511cbe3a9b0c843f612d56f1bb76-3601405030';
 const TELEGRAM_BOT_TOKEN = '8966386944:AAH8OTZoT7V-ZGS9WHNtW99NjtCBj0iiZYE';
 const TELEGRAM_CHAT_ID = '7691781211';
+
+// URL del Backend en Render (para Webhooks de Mercado Pago)
 const URL_PUBLICA_SERVER = 'https://matecito.onrender.com';
+
+// URL del Frontend en Netlify (para redirigir al comprador)
+const URL_FRONTEND = 'https://cerulean-pegasus-b7f4e1.netlify.app';
 
 const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
 
@@ -45,7 +50,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
     try {
         const { items, cliente } = req.body;
 
-        // NORMALIZAR PRODUCTOS (Adapta cualquier formato de carrito)
+        // NORMALIZAR PRODUCTOS
         const itemsFormateados = (items || []).map(item => ({
             id: String(item.id || '1'),
             title: String(item.title || item.nombre || 'Producto MateCico'),
@@ -74,9 +79,9 @@ app.post('/api/crear-preferencia', async (req, res) => {
             body: {
                 items: itemsFormateados,
                 back_urls: {
-                    success: `${URL_PUBLICA_SERVER}/index.html`,
-                    failure: `${URL_PUBLICA_SERVER}/carrito.html`,
-                    pending: `${URL_PUBLICA_SERVER}/carrito.html`
+                    success: `${URL_FRONTEND}/index.html`,
+                    failure: `${URL_FRONTEND}/carrito.html`,
+                    pending: `${URL_FRONTEND}/carrito.html`
                 },
                 auto_return: 'approved',
                 notification_url: `${URL_PUBLICA_SERVER}/api/webhook-mp`,

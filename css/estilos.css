@@ -33,4 +33,164 @@ img {
   height: 45px !important;
   object-fit: cover !important;
   border-radius: 50% !important;
+}/* ==========================================
+   ESTILOS SECCIÓN Y PÁGINA DE CONTACTO
+   ========================================== */
+
+.contenedor-contacto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.info-contacto {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tarjeta-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #1e1e1e;
+  padding: 15px 20px;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.icono-contacto {
+  font-size: 1.6rem;
+}
+
+.tarjeta-info h4 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.tarjeta-info p {
+  margin: 4px 0 0 0;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.form-contacto {
+  flex: 1;
+  min-width: 280px;
+  background: #1e1e1e;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-contacto h3 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
+.grupo-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.grupo-campo label {
+  color: #ccc;
+  font-size: 0.85rem;
+}
+
+.grupo-campo input,
+.grupo-campo textarea {
+  background: #121212;
+  border: 1px solid #444;
+  color: #ffffff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.grupo-campo input:focus,
+.grupo-campo textarea:focus {
+  outline: none;
+  border-color: #25d366;
+}
+
+#btn-enviar-contacto {
+  background: #25d366;
+  color: #000000;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+#btn-enviar-contacto:hover {
+  background: #1eb854;
+}/* Configuración General y Tema Oscuro */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #121212; /* Fondo oscuro global */
+  color: #f1f1f1;            /* Texto claro global */
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Encabezados generales */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+}
+
+/* Subtítulo de contacto */
+.subtitulo-contacto {
+  color: #aaa;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Menú de navegación (si no tenía fondo definido) */
+header {
+  background-color: #1e1e1e;
+  padding: 15px 20px;
+  border-bottom: 1px solid #333;
+}
+
+header h1 {
+  margin: 0;
+  color: #ffffff;
+}
+
+nav a {
+  color: #cccccc;
+  text-decoration: none;
+  margin-right: 15px;
+  font-weight: 500;
+}
+
+nav a:hover, nav a.active {
+  color: #25d366;
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  border-top: 1px solid #222;
+  margin-top: 40px;
 }

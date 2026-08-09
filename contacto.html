@@ -3,26 +3,95 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito - MateCico</title>
+  <title>Contacto - MateCico</title>
   <link rel="stylesheet" href="css/estilos.css">
+  <!-- Iconos Oficiales (Font Awesome) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
   <header>
-    <h1>🧉 MateCico</h1>
+    <h1>MateCico</h1>
     <nav>
       <a href="index.html">Inicio</a>
       <a href="productos.html">Productos</a>
-      <a href="contacto.html">Contacto</a>
+      <a href="contacto.html" class="active">Contacto</a>
       <a href="carrito.html">🛒 Carrito</a>
     </nav>
   </header>
 
-  <main style="padding: 40px 20px; min-height: 70vh;">
-    <h2 style="text-align: center; margin-bottom: 30px; color: #1f3b2d;">Tu Carrito de Compras</h2>
-    
-    <!-- Aquí JavaScript inyectará las tarjetas de productos -->
-    <div id="carrito" class="productos"></div>
+  <main class="seccion-contacto">
+    <h2>Contacto</h2>
+    <p class="subtitulo-contacto">¿Tenés alguna duda o querés hacer un pedido personalizado? Escribinos.</p>
+
+    <div class="contenedor-contacto">
+      <!-- Información de la tienda -->
+      <div class="info-contacto">
+        <div class="tarjeta-info">
+          <span class="icono-contacto"><i class="fa-solid fa-location-dot"></i></span>
+          <div>
+            <h4>Ubicación</h4>
+            <p>Hipólito Yrigoyen 710, Cañuelas, Bs. As.</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-info">
+          <span class="icono-contacto" style="color: #25d366;"><i class="fa-brands fa-whatsapp"></i></span>
+          <div>
+            <h4>Teléfono / WhatsApp</h4>
+            <p>+54 9 11 6014-9903</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-info">
+          <span class="icono-contacto" style="color: #e1306c;"><i class="fa-brands fa-instagram"></i></span>
+          <div>
+            <h4>Instagram</h4>
+            <p><a href="https://instagram.com/matecico_" target="_blank" style="color: #25d366; text-decoration: none; font-weight: bold;">@matecico_</a></p>
+          </div>
+        </div>
+
+        <div class="tarjeta-info">
+          <span class="icono-contacto"><i class="fa-regular fa-envelope"></i></span>
+          <div>
+            <h4>Email</h4>
+            <p>contacto@matecico.com</p>
+          </div>
+        </div>
+
+        <div class="tarjeta-info">
+          <span class="icono-contacto"><i class="fa-regular fa-clock"></i></span>
+          <div>
+            <h4>Horarios de atención</h4>
+            <p>Lunes a Sábados: 09:00 - 19:00 hs</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario de Consulta Directa por WhatsApp -->
+      <form id="form-contacto" class="form-contacto">
+        <h3>Envianos un mensaje</h3>
+        
+        <div class="grupo-campo">
+          <label for="contacto-nombre">Nombre y Apellido *</label>
+          <input type="text" id="contacto-nombre" placeholder="Tu nombre completo" required>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="contacto-telefono">Teléfono / WhatsApp *</label>
+          <input type="tel" id="contacto-telefono" placeholder="Ej: 1159529503" required>
+        </div>
+
+        <div class="grupo-campo">
+          <label for="contacto-mensaje">Consulta o Mensaje *</label>
+          <textarea id="contacto-mensaje" rows="4" placeholder="Escribí tu consulta acá..." required></textarea>
+        </div>
+
+        <button type="submit" id="btn-enviar-contacto">
+          Enviar Consulta por WhatsApp <i class="fa-brands fa-whatsapp" style="margin-left: 5px; font-size: 1.1rem;"></i>
+        </button>
+      </form>
+    </div>
   </main>
 
   <footer>
