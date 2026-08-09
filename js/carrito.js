@@ -1,179 +1,295 @@
-function cargarCarrito() {
-  const listaContenedor = document.getElementById('lista-carrito');
-  const totalElemento = document.getElementById('total-precio');
-  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+// 1. ESTADO GLOBAL
+let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+let costoEnvio = 0;
 
-  if (!listaContenedor) return;
+function guardarCarrito() {
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+// 2. MOSTRAR PRODUCTOS EN EL CARRITO
+function cargarCarrito() {
+  const contenedor = document.getElementById('lista-carrito') || document.getElementById('contenedor-carrito');
+  const elemTotal = document.getElementById('total-precio') || document.getElementById('total-lista');
+
+  if (!contenedor) return;
 
   if (carrito.length === 0) {
-    listaContenedor.innerHTML = '<p class="carrito-vacio">El carrito está vacío.</p>';
-    if (totalElemento) totalElemento.innerText = '$0';
+    contenedor.innerHTML = '<p class="carrito-vacio" style="text-align:center; padding: 20px; color:#ccc;">El carrito está vacío.</p>';
+    if (elemTotal) elemTotal.innerText = '$0';
+    actualizarTotalesPantalla(0);
     return;
   }
 
-  listaContenedor.innerHTML = '';
-  let total = 0;
+  contenedor.innerHTML = '';
+  let subtotalProductos = 0;
 
   carrito.forEach((producto, index) => {
-    const cantidad = producto.cantidad || 1;
-    const subtotal = producto.precio * cantidad;
-    total += subtotal;
+    const cant = Number(producto.cantidad || producto.quantity || 1);
+    const precio = Number(producto.precio || producto.unit_price || 0);
+    const subtotal = precio * cant;
+    subtotalProductos += subtotal;
 
-    listaContenedor.innerHTML += `
-      <div class="item-carrito">
-        <img src="${producto.imagen}" alt="${producto.nombre}" class="img-thumb">
-        <div class="info-item">
-          <h3>${producto.nombre}</h3>
-          <p class="precio-unitario">$${producto.precio.toLocaleString('es-AR')}</p>
+    const titulo = producto.nombre || producto.title || 'Producto';
+    const img = producto.imagen || producto.img || '';
+
+    contenedor.innerHTML += `
+      <div class="item-carrito" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          ${img ? `<img src="${img}" alt="${titulo}" class="img-thumb" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">` : ''}
+          <div>
+            <h3 style="margin:0; font-size:1rem; color:#fff;">${titulo}</h3>
+            <p style="margin:0; color:#aaa; font-size:0.9rem;">$${precio.toLocaleString('es-AR')}</p>
+          </div>
         </div>
-        <div class="controles-cantidad">
-          <button onclick="cambiarCantidad(${index}, -1)">-</button>
-          <span>${cantidad}</span>
-          <button onclick="cambiarCantidad(${index}, 1)">+</button>
+        <div class="controles-cantidad" style="display:flex; align-items:center; gap:8px;">
+          <button type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
+          <span>${cant}</span>
+          <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
         </div>
-        <div class="subtotal-item">
+        <div class="subtotal-item" style="color:#fff;">
           $${subtotal.toLocaleString('es-AR')}
         </div>
-        <button class="btn-eliminar" onclick="eliminarProducto(${index})">✕</button>
+        <button type="button" class="btn-eliminar" onclick="eliminarProducto(${index})">✕</button>
       </div>
     `;
   });
 
-  if (totalElemento) {
-    totalElemento.innerText = `$${total.toLocaleString('es-AR')}`;
-  }
+  actualizarTotalesPantalla(subtotalProductos);
 }
 
 function cambiarCantidad(index, cambio) {
-  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   if (!carrito[index]) return;
+  let cant = (carrito[index].cantidad || carrito[index].quantity || 1) + cambio;
 
-  carrito[index].cantidad = (carrito[index].cantidad || 1) + cambio;
-
-  if (carrito[index].cantidad <= 0) {
+  if (cant <= 0) {
     carrito.splice(index, 1);
+  } else {
+    carrito[index].cantidad = cant;
+    carrito[index].quantity = cant;
   }
-
-  localStorage.setItem('carrito', JSON.stringify(carrito));
+  guardarCarrito();
   cargarCarrito();
 }
 
 function eliminarProducto(index) {
-  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
   carrito.splice(index, 1);
-  localStorage.setItem('carrito', JSON.stringify(carrito));
+  guardarCarrito();
   cargarCarrito();
 }
 
-async function pagar() {
-  let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-  if (carrito.length === 0) {
-    alert('El carrito está vacío');
+window.cambiarCantidad = cambiarCantidad;
+window.eliminarProducto = eliminarProducto;
+
+// 3. CÁLCULO DE ENVÍO
+function calcularCostoEnvio() {
+  const inputCP = document.querySelector('input[placeholder*="Postal" i], input[placeholder*="CP" i], #input-cp, #cp');
+  const mensajeEnvio = document.getElementById('mensaje-envio');
+  const cp = inputCP ? inputCP.value.trim() : '';
+
+  if (!cp) {
+    alert('⚠️ Por favor ingresá un Código Postal en la casilla correspondinte.');
+    if (mensajeEnvio) {
+      mensajeEnvio.style.color = '#ff4d4d';
+      mensajeEnvio.innerText = 'Ingresá un código postal válido';
+    }
+    costoEnvio = 0;
+    cargarCarrito();
     return;
   }
 
-  // Mapeamos los campos del carrito a lo que espera Mercado Pago / Telegram en server.js
-  const itemsFormateados = carrito.map(producto => ({
-    title: producto.nombre,
-    unit_price: Number(producto.precio),
-    quantity: Number(producto.cantidad || 1)
+  costoEnvio = 4500;
+
+  if (mensajeEnvio) {
+    mensajeEnvio.style.color = '#25d366';
+    mensajeEnvio.innerText = `Envío a CP ${cp}: $${costoEnvio.toLocaleString('es-AR')}`;
+  }
+
+  cargarCarrito();
+}
+
+function actualizarTotalesPantalla(subtotal) {
+  const totalConEnvio = subtotal + costoEnvio;
+
+  const elemCostoEnvio = document.getElementById('costo-envio-texto');
+  if (elemCostoEnvio) elemCostoEnvio.innerText = `$${costoEnvio.toLocaleString('es-AR')}`;
+
+  const elemTotal = document.getElementById('total-precio') || document.getElementById('total-lista');
+  if (elemTotal) elemTotal.innerText = `$${totalConEnvio.toLocaleString('es-AR')}`;
+
+  const elemTotalTransf = document.getElementById('total-transferencia');
+  if (elemTotalTransf) {
+    const desc = Math.round(totalConEnvio * 0.9);
+    elemTotalTransf.innerText = `$${desc.toLocaleString('es-AR')}`;
+  }
+}
+
+// 4. PROCESAR PAGO CON VALIDACIONES ESTRICTAS
+async function procesarPagoStrict(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  if (!carrito || carrito.length === 0) {
+    alert('⚠️ El carrito está vacío. Agregá un producto antes de pagar.');
+    return false;
+  }
+
+  // Buscar inputs específicos por ID o Placeholder
+  const inputNombre = document.querySelector('#cliente-nombre, input[name="nombre"], input[placeholder*="Nombre" i]');
+  const inputTelefono = document.querySelector('#cliente-telefono, input[name="telefono"], input[placeholder*="Tel" i], input[placeholder*="WhatsApp" i]');
+  const inputDireccion = document.querySelector('#cliente-direccion, input[name="direccion"], input[placeholder*="Direcci" i], input[placeholder*="Calle" i]');
+  const inputCP = document.querySelector('#input-cp, #cp, input[placeholder*="Postal" i], input[placeholder*="CP" i]');
+
+  const nombre = inputNombre ? inputNombre.value.trim() : '';
+  const telefono = inputTelefono ? inputTelefono.value.trim() : '';
+  const direccion = inputDireccion ? inputDireccion.value.trim() : '';
+  const cp = inputCP ? inputCP.value.trim() : '';
+
+  // VALIDACIONES OBLIGATORIAS
+  if (!nombre) {
+    alert('❌ Faltan datos: Por favor, ingresá tu Nombre y Apellido.');
+    if (inputNombre) inputNombre.focus();
+    return false;
+  }
+
+  if (!telefono) {
+    alert('❌ Faltan datos: Por favor, ingresá tu Teléfono de contacto.');
+    if (inputTelefono) inputTelefono.focus();
+    return false;
+  }
+
+  if (!direccion) {
+    alert('❌ Faltan datos: Por favor, ingresá tu Dirección de entrega.');
+    if (inputDireccion) inputDireccion.focus();
+    return false;
+  }
+
+  if (!cp || costoEnvio === 0) {
+    alert('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
+    if (inputCP) inputCP.focus();
+    return false;
+  }
+
+  // ARMADO DE ITEMS CON ENVÍO INCLUIDO
+  const itemsAEnviar = carrito.map(prod => ({
+    id: prod.id || 'prod',
+    title: prod.nombre || prod.title,
+    unit_price: Number(prod.precio || prod.unit_price),
+    quantity: Number(prod.cantidad || prod.quantity || 1)
   }));
 
+  itemsAEnviar.push({
+    id: 'envio-domicilio',
+    title: 'Costo de Envío a Domicilio',
+    unit_price: Number(costoEnvio),
+    quantity: 1
+  });
+
+  const cliente = {
+    nombre: nombre,
+    telefono: telefono,
+    direccion: direccion
+  };
+
+  const btnPagar = document.getElementById('btn-pagar') || 
+                   Array.from(document.querySelectorAll('button')).find(el => 
+                     el.innerText.toLowerCase().includes('pagar')
+                   );
+
+  if (btnPagar) {
+    btnPagar.innerText = 'Cargando...';
+    btnPagar.disabled = true;
+  }
+
   try {
-    // 1. Ruta corregida a '/api/crear-preferencia'
     const respuesta = await fetch('/api/crear-preferencia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        items: itemsFormateados,
-        cliente: {
-          nombre: 'Cliente Web',
-          direccion: 'Dirección a coordinar',
-          telefono: 'Sin especificar'
-        }
+      body: JSON.stringify({
+        items: itemsAEnviar,
+        cliente: cliente
       })
     });
 
-    if (respuesta.ok) {
-      const data = await respuesta.json();
-      if (data.init_point) {
-        // Redirige a Mercado Pago
-        window.location.href = data.init_point;
-        return;
-      }
+    const data = await respuesta.json();
+
+    if (data.init_point) {
+      window.location.href = data.init_point;
+    } else {
+      alert('Error al generar la preferencia de pago.');
     }
-    
-    alert('No se pudo generar el checkout. Revisa la consola.');
   } catch (error) {
     console.error('Error al pagar:', error);
-    alert('Error de conexión con el servidor.');
-  }
-}// 6. INICIALIZAR Y MANEJAR EVENTOS
-document.addEventListener('DOMContentLoaded', () => {
-    renderizarCatalogo();
-    renderizarCarrito();
-
-    // Botón Vaciar
-    const btnVaciar = Array.from(document.querySelectorAll('button, a')).find(el => 
-        el.innerText.toLowerCase().includes('vaciar')
-    );
-    if (btnVaciar) {
-        btnVaciar.addEventListener('click', (e) => {
-            e.preventDefault();
-            carrito = [];
-            guardarCarrito();
-            renderizarCarrito();
-        });
-    }
-
-    // Botón PAGAR (Busca por ID 'btn-pagar' o cualquier botón/enlace que diga 'pagar')
-    const btnPagar = document.getElementById('btn-pagar') || 
-                     Array.from(document.querySelectorAll('button, a')).find(el => 
-                         el.innerText.toLowerCase().includes('pagar')
-                     );
-
+    alert('Ocurrió un error al conectar con el servidor.');
+  } finally {
     if (btnPagar) {
-        btnPagar.addEventListener('click', async (e) => {
-            e.preventDefault();
-
-            if (!carrito || carrito.length === 0) {
-                alert('El carrito está vacío. Agregá un producto primero.');
-                return;
-            }
-
-            const inputs = document.querySelectorAll('input, textarea');
-            const cliente = {
-                nombre: inputs[0]?.value || 'Cliente Test',
-                telefono: inputs[1]?.value || '1112345678',
-                direccion: inputs[2]?.value || 'Direccion Test'
-            };
-
-            btnPagar.innerText = 'Cargando...';
-            btnPagar.disabled = true;
-
-            try {
-                const response = await fetch('/api/crear-preferencia', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: carrito, cliente: cliente })
-                });
-
-                const data = await response.json();
-
-                if (data.init_point) {
-                    window.location.href = data.init_point;
-                } else {
-                    alert('Hubo un problema al generar la preferencia de pago.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Ocurrió un error al conectar con el servidor.');
-            } finally {
-                btnPagar.innerText = 'PAGAR';
-                btnPagar.disabled = false;
-            }
-        });
-    } else {
-        console.warn('No se encontró el botón de pagar en el DOM.');
+      btnPagar.innerText = 'PAGAR';
+      btnPagar.disabled = false;
     }
+  }
+}
+
+window.pagar = procesarPagoStrict;
+
+// 5. EVENTOS E INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', () => {
+  cargarCarrito();
+
+  // Interceptar todos los formularios HTML para evitar que envíen automáticamente
+  const formularios = document.querySelectorAll('form');
+  formularios.forEach(form => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      procesarPagoStrict(e);
+    });
+  });
+
+  // Botón Calcular Envío
+  const btnCalcular = document.getElementById('btn-calcular-cp') || 
+                      Array.from(document.querySelectorAll('button')).find(el => 
+                        el.innerText.toLowerCase().includes('calcular')
+                      );
+  if (btnCalcular) {
+    btnCalcular.addEventListener('click', (e) => {
+      e.preventDefault();
+      calcularCostoEnvio();
+    });
+  }
+
+  // Reiniciar costo de envío si modifican el input CP
+  const inputCP = document.querySelector('#input-cp, #cp, input[placeholder*="Postal" i], input[placeholder*="CP" i]');
+  if (inputCP) {
+    inputCP.addEventListener('input', () => {
+      costoEnvio = 0;
+      const msj = document.getElementById('mensaje-envio');
+      if (msj) msj.innerText = '';
+      cargarCarrito();
+    });
+  }
+
+  // Botón Vaciar
+  const btnVaciar = document.getElementById('btn-vaciar') || 
+                    Array.from(document.querySelectorAll('button, a')).find(el => 
+                      el.innerText.toLowerCase().includes('vaciar')
+                    );
+  if (btnVaciar) {
+    btnVaciar.addEventListener('click', (e) => {
+      e.preventDefault();
+      carrito = [];
+      costoEnvio = 0;
+      guardarCarrito();
+      cargarCarrito();
+    });
+  }
+
+  // Botón PAGAR
+  const btnPagar = document.getElementById('btn-pagar') || 
+                   Array.from(document.querySelectorAll('button, a')).find(el => 
+                     el.innerText.toLowerCase().includes('pagar')
+                   );
+
+  if (btnPagar) {
+    btnPagar.onclick = (e) => procesarPagoStrict(e);
+  }
 });

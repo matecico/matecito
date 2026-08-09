@@ -1,228 +1,298 @@
-// 1. CARGAR Y GUARDAR CARRITO EN LOCALSTORAGE
-let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+// 1. ESTADO GLOBAL
+let carrito = [];
+try {
+  carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+  if (!Array.isArray(carrito)) carrito = [];
+} catch (err) {
+  carrito = [];
+}
+
+let costoEnvio = 0;
 
 function guardarCarrito() {
+  try {
     localStorage.setItem('carrito', JSON.stringify(carrito));
+  } catch (err) {
+    console.error('Error al guardar en localStorage:', err);
+  }
 }
 
-// 2. RENDERIZAR CATÁLOGO DE PRODUCTOS (INDEX.HTML)
-function renderizarCatalogo() {
-    const contenedor = document.getElementById('contenedor-productos') || 
-                       document.querySelector('.productos-grid') || 
-                       document.querySelector('#productos');
-
-    if (contenedor && typeof productos !== 'undefined' && Array.isArray(productos)) {
-        contenedor.innerHTML = '';
-        productos.forEach(prod => {
-            const div = document.createElement('div');
-            div.classList.add('producto-card');
-            div.innerHTML = `
-                <img src="${prod.imagen}" alt="${prod.nombre}">
-                <h3>${prod.nombre}</h3>
-                <p>$${prod.precio.toLocaleString('es-AR')}</p>
-                <button onclick="agregarAlCarrito(${prod.id})">Agregar al Carrito</button>
-            `;
-            contenedor.appendChild(div);
-        });
-    }
-}
-
-// 3. AGREGAR PRODUCTOS AL CARRITO
-function agregarAlCarrito(id) {
-    let producto = null;
-
-    if (typeof productos !== 'undefined' && Array.isArray(productos)) {
-        producto = productos.find(p => p.id == id);
-    }
-
-    if (producto) {
-        const existe = carrito.find(item => item.id == id);
-        if (existe) {
-            existe.quantity = (existe.quantity || 1) + 1;
-            existe.cantidad = existe.quantity;
-        } else {
-            carrito.push({
-                id: producto.id,
-                title: producto.nombre,
-                nombre: producto.nombre,
-                unit_price: Number(producto.precio),
-                precio: Number(producto.precio),
-                imagen: producto.imagen,
-                quantity: 1,
-                cantidad: 1,
-                currency_id: 'ARS'
-            });
-        }
-        guardarCarrito();
-        alert(`¡${producto.nombre} agregado al carrito!`);
-    }
-}
-window.agregarAlCarrito = agregarAlCarrito;
-
-// 4. OBTENER O CREAR EL CONTENEDOR DE ITEMS EN CARRITO.HTML
-function obtenerContenedorCarrito() {
-    let contenedor = document.getElementById('items-carrito') || 
-                     document.getElementById('carrito-items') || 
-                     document.querySelector('.carrito-items') || 
-                     document.querySelector('.lista-carrito');
-
-    if (!contenedor && window.location.pathname.includes('carrito')) {
-        const bloqueDatos = document.querySelector('.datos-entrega') || 
-                            document.querySelector('form') ||
-                            document.querySelector('.col-izquierda') ||
-                            document.querySelector('main');
-
-        if (bloqueDatos && bloqueDatos.parentElement) {
-            contenedor = document.createElement('div');
-            contenedor.id = 'items-carrito';
-            contenedor.style.cssText = 'margin-bottom:20px; width:100%;';
-            bloqueDatos.parentElement.insertBefore(contenedor, bloqueDatos);
-        }
-    }
-    return contenedor;
-}
-
-// 5. DIBUJAR ITEMS Y ACTUALIZAR TOTALES EN CARRITO.HTML
+// 2. RENDERIZAR CARRITO
 function renderizarCarrito() {
-    const contenedor = obtenerContenedorCarrito();
-    
-    let total = 0;
-    carrito.forEach(item => {
-        const precio = Number(item.unit_price || item.precio || 0);
-        const cant = Number(item.quantity || item.cantidad || 1);
-        total += precio * cant;
-    });
+  const contenedor = document.getElementById('contenedor-carrito');
+  if (!contenedor) return;
 
-    actualizarTotales(total);
+  if (carrito.length === 0) {
+    contenedor.innerHTML = '<div style="background:#1e1e1e; padding:20px; border-radius:8px; text-align:center; color:#ccc; border:1px solid #333;">El carrito está vacío. Agregá productos desde el catálogo.</div>';
+    actualizarTotales();
+    return;
+  }
 
-    if (!contenedor) return;
+  contenedor.innerHTML = '';
+  carrito.forEach((prod, index) => {
+    const precio = Number(prod.unit_price || prod.precio || 0);
+    const cant = Number(prod.quantity || prod.cantidad || 1);
+    const subtotal = precio * cant;
+    const titulo = prod.title || prod.nombre || 'Producto';
+    const img = prod.imagen || prod.img || '';
 
-    if (carrito.length === 0) {
-        contenedor.innerHTML = '<div style="background:#1e1e1e; padding:15px; border-radius:8px; text-align:center; color:#ccc; border:1px solid #333;">El carrito está vacío. Agregá productos desde el catálogo.</div>';
-        return;
-    }
+    const div = document.createElement('div');
+    div.className = 'item-carrito';
+    div.innerHTML = `
+      <div class="info-producto-carrito">
+        ${img ? `<img src="${img}" alt="${titulo}" class="img-item-carrito">` : ''}
+        <div class="detalles-item">
+          <h4>${titulo}</h4>
+          <span>$${precio.toLocaleString('es-AR')} c/u</span>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="selector-cantidad">
+          <button type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
+          <span>${cant}</span>
+          <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+        </div>
+        <strong class="precio-item-carrito">$${subtotal.toLocaleString('es-AR')}</strong>
+        <button type="button" onclick="eliminarDelCarrito(${index})" class="btn-eliminar-item">🗑️</button>
+      </div>
+    `;
+    contenedor.appendChild(div);
+  });
 
-    contenedor.innerHTML = '';
-    carrito.forEach((prod, index) => {
-        const precio = Number(prod.unit_price || prod.precio || 0);
-        const cant = Number(prod.quantity || prod.cantidad || 1);
-        const subtotal = precio * cant;
-        const titulo = prod.title || prod.nombre || 'Producto';
-        const img = prod.imagen || prod.img || '';
-
-        const div = document.createElement('div');
-        div.style.cssText = 'background:#1e1e1e; border:1px solid #333; border-radius:8px; padding:15px; margin-bottom:15px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; color:#fff;';
-        div.innerHTML = `
-            <div style="display:flex; align-items:center; gap:12px;">
-                ${img ? `<img src="${img}" alt="${titulo}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">` : ''}
-                <div>
-                    <h4 style="margin:0 0 4px 0; font-size:15px; color:#fff;">${titulo}</h4>
-                    <span style="color:#aaa; font-size:13px;">$${precio.toLocaleString('es-AR')}</span>
-                </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <button onclick="cambiarCantidad(${index}, -1)" style="background:#333; color:#fff; border:none; padding:3px 8px; border-radius:4px; cursor:pointer;">-</button>
-                <span style="font-weight:bold; padding:0 4px;">${cant}</span>
-                <button onclick="cambiarCantidad(${index}, 1)" style="background:#333; color:#fff; border:none; padding:3px 8px; border-radius:4px; cursor:pointer;">+</button>
-                <strong style="margin:0 8px; font-size:15px; color:#22c55e;">$${subtotal.toLocaleString('es-AR')}</strong>
-                <button onclick="eliminarDelCarrito(${index})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:16px;">🗑️</button>
-            </div>
-        `;
-        contenedor.appendChild(div);
-    });
+  actualizarTotales();
 }
 
 function cambiarCantidad(index, cambio) {
-    if (carrito[index]) {
-        let cant = (carrito[index].quantity || carrito[index].cantidad || 1) + cambio;
-        if (cant <= 0) {
-            carrito.splice(index, 1);
-        } else {
-            carrito[index].quantity = cant;
-            carrito[index].cantidad = cant;
-        }
-        guardarCarrito();
-        renderizarCarrito();
+  if (carrito[index]) {
+    let cant = Number(carrito[index].quantity || carrito[index].cantidad || 1) + cambio;
+    if (cant <= 0) {
+      carrito.splice(index, 1);
+    } else {
+      carrito[index].quantity = cant;
+      carrito[index].cantidad = cant;
     }
+    guardarCarrito();
+    renderizarCarrito();
+  }
 }
 
 function eliminarDelCarrito(index) {
-    carrito.splice(index, 1);
-    guardarCarrito();
-    renderizarCarrito();
-}
-
-function actualizarTotales(total) {
-    const elTotal = document.getElementById('total-lista') || document.querySelector('.total-lista');
-    const elTransf = document.getElementById('total-transferencia') || document.querySelector('.total-transferencia');
-
-    if (elTotal) elTotal.innerText = `$${total.toLocaleString('es-AR')}`;
-    if (elTransf) elTransf.innerText = `$${Math.round(total * 0.9).toLocaleString('es-AR')}`;
+  carrito.splice(index, 1);
+  guardarCarrito();
+  renderizarCarrito();
 }
 
 window.cambiarCantidad = cambiarCantidad;
 window.eliminarDelCarrito = eliminarDelCarrito;
 
-// 6. INICIALIZAR Y MANEJAR EVENTOS
-document.addEventListener('DOMContentLoaded', () => {
-    renderizarCatalogo();
-    renderizarCarrito();
+// 3. CALCULAR ENVÍO
+function calcularCostoEnvio() {
+  const inputCP = document.getElementById('input-cp');
+  const mensajeEnvio = document.getElementById('mensaje-envio');
+  const cp = inputCP ? inputCP.value.trim() : '';
 
-    // Botón Vaciar
-    const btnVaciar = Array.from(document.querySelectorAll('button, a')).find(el => el.innerText.toLowerCase().includes('vaciar'));
-    if (btnVaciar) {
-        btnVaciar.addEventListener('click', (e) => {
-            e.preventDefault();
-            carrito = [];
-            guardarCarrito();
-            renderizarCarrito();
-        });
+  if (!cp) {
+    alert('⚠️ Por favor ingresá tu Código Postal para calcular el envío.');
+    costoEnvio = 0;
+    actualizarTotales();
+    return;
+  }
+
+  // Costo fijo de prueba
+  costoEnvio = 4500;
+
+  if (mensajeEnvio) {
+    mensajeEnvio.style.color = '#25d366';
+    mensajeEnvio.innerText = `Envío a CP ${cp}: $${costoEnvio.toLocaleString('es-AR')}`;
+  }
+
+  actualizarTotales();
+  alert(`✅ Envío calculado con éxito: $${costoEnvio.toLocaleString('es-AR')}`);
+}
+
+window.calcularCostoEnvio = calcularCostoEnvio;
+
+function actualizarTotales() {
+  const subtotal = carrito.reduce((acc, item) => {
+    const p = Number(item.precio || item.unit_price || 0);
+    const c = Number(item.cantidad || item.quantity || 1);
+    return acc + (p * c);
+  }, 0);
+
+  const totalConEnvio = subtotal + costoEnvio;
+
+  const elemEnvio = document.getElementById('costo-envio-texto');
+  if (elemEnvio) elemEnvio.innerText = `$${costoEnvio.toLocaleString('es-AR')}`;
+
+  const elemTotalLista = document.getElementById('total-lista');
+  if (elemTotalLista) elemTotalLista.innerText = `$${totalConEnvio.toLocaleString('es-AR')}`;
+
+  const elemTotalTransf = document.getElementById('total-transferencia');
+  if (elemTotalTransf) {
+    const desc = Math.round(totalConEnvio * 0.9);
+    elemTotalTransf.innerText = `$${desc.toLocaleString('es-AR')}`;
+  }
+}
+
+// 4. VALIDACIÓN MANUAL STRICTA
+function validarCampos() {
+  const nombre = document.getElementById('cliente-nombre')?.value.trim();
+  const telefono = document.getElementById('cliente-telefono')?.value.trim();
+  const direccion = document.getElementById('cliente-direccion')?.value.trim();
+  const localidad = document.getElementById('cliente-localidad')?.value.trim();
+
+  if (!nombre || !telefono || !direccion || !localidad) {
+    alert('❌ Todos los campos marcados con (*) son obligatorios.');
+    return false;
+  }
+
+  if (costoEnvio === 0) {
+    alert('❌ Debes presionar el botón "Calcular" en el Código Postal antes de continuar.');
+    document.getElementById('input-cp')?.focus();
+    return false;
+  }
+
+  return true;
+}
+
+// 5. PROCESAR PAGO MERCADO PAGO
+async function procesarPagoMercadoPago(e) {
+  if (e) e.preventDefault();
+
+  if (!carrito || carrito.length === 0) {
+    alert('⚠️ El carrito está vacío.');
+    return;
+  }
+
+  if (!validarCampos()) return;
+
+  const nombre = document.getElementById('cliente-nombre').value.trim();
+  const telefono = document.getElementById('cliente-telefono').value.trim();
+  const direccion = document.getElementById('cliente-direccion').value.trim();
+  const localidad = document.getElementById('cliente-localidad').value.trim();
+  const notas = document.getElementById('cliente-notas')?.value.trim() || '';
+
+  const itemsAEnviar = carrito.map(prod => ({
+    id: prod.id || 'prod',
+    title: prod.nombre || prod.title,
+    unit_price: Number(prod.precio || prod.unit_price),
+    quantity: Number(prod.cantidad || prod.quantity || 1)
+  }));
+
+  itemsAEnviar.push({
+    id: 'envio-domicilio',
+    title: 'Costo de Envío a Domicilio',
+    unit_price: Number(costoEnvio),
+    quantity: 1
+  });
+
+  const btnPagar = document.getElementById('btn-pagar');
+  if (btnPagar) {
+    btnPagar.innerText = 'Cargando...';
+    btnPagar.disabled = true;
+  }
+
+  try {
+    const respuesta = await fetch('/api/crear-preferencia', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: itemsAEnviar,
+        cliente: { nombre, telefono, direccion: `${direccion} (${localidad})`, notas }
+      })
+    });
+
+    const data = await respuesta.json();
+
+    if (data.init_point) {
+      window.location.href = data.init_point;
+    } else {
+      alert('Error al generar el enlace de Mercado Pago.');
     }
-
-    // Botón PAGAR
-    const btnPagar = document.getElementById('btn-pagar') || 
-                     Array.from(document.querySelectorAll('button, a')).find(el => el.innerText.trim() === 'PAGAR');
-
+  } catch (error) {
+    console.error('Error enviando al servidor:', error);
+    alert('Ocurrió un error de conexión.');
+  } finally {
     if (btnPagar) {
-        btnPagar.addEventListener('click', async (e) => {
-            e.preventDefault();
-
-            if (!carrito || carrito.length === 0) {
-                alert('El carrito está vacío. Agregá un producto desde el catálogo primero.');
-                return;
-            }
-
-            const inputs = document.querySelectorAll('input, textarea');
-            const cliente = {
-                nombre: inputs[0]?.value || 'Cliente Test',
-                telefono: inputs[1]?.value || '1112345678',
-                direccion: inputs[2]?.value || 'Direccion Test'
-            };
-
-            btnPagar.innerText = 'Cargando...';
-            btnPagar.disabled = true;
-
-            try {
-                const response = await fetch('/api/crear-preferencia', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: carrito, cliente: cliente })
-                });
-
-                const data = await response.json();
-
-                if (data.init_point) {
-                    window.location.href = data.init_point;
-                } else {
-                    alert('Hubo un problema al procesar el pago.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Ocurrió un error al conectar con el servidor.');
-            } finally {
-                btnPagar.innerText = 'PAGAR';
-                btnPagar.disabled = false;
-            }
-        });
+      btnPagar.innerText = 'PAGAR';
+      btnPagar.disabled = false;
     }
+  }
+}
+
+// 6. ENVIAR A WHATSAPP
+function enviarPedidoWhatsApp() {
+  if (!carrito || carrito.length === 0) {
+    alert('⚠️ El carrito está vacío.');
+    return;
+  }
+
+  if (!validarCampos()) return;
+
+  const nombre = document.getElementById('cliente-nombre').value.trim();
+  const telefono = document.getElementById('cliente-telefono').value.trim();
+  const direccion = document.getElementById('cliente-direccion').value.trim();
+  const localidad = document.getElementById('cliente-localidad').value.trim();
+
+  let mensaje = `Hola! Quiero realizar un pedido:\n\n`;
+  carrito.forEach(p => {
+    mensaje += `- ${p.cantidad || p.quantity || 1}x ${p.nombre || p.title}\n`;
+  });
+
+  mensaje += `\n📦 Envío: $${costoEnvio}`;
+  mensaje += `\n👤 Cliente: ${nombre}`;
+  mensaje += `\n📞 Tel: ${telefono}`;
+  mensaje += `\n📍 Dirección: ${direccion}, ${localidad}`;
+
+  window.open(`https://wa.me/5491112345678?text=${encodeURIComponent(mensaje)}`, '_blank');
+}
+
+// 7. VINCULACIÓN DE EVENTOS
+document.addEventListener('DOMContentLoaded', () => {
+  renderizarCarrito();
+
+  const btnCalcular = document.getElementById('btn-calcular-cp');
+  if (btnCalcular) {
+    btnCalcular.onclick = (e) => {
+      e.preventDefault();
+      calcularCostoEnvio();
+    };
+  }
+
+  const inputCP = document.getElementById('input-cp');
+  if (inputCP) {
+    inputCP.addEventListener('input', () => {
+      costoEnvio = 0;
+      const msj = document.getElementById('mensaje-envio');
+      if (msj) msj.innerText = '';
+      actualizarTotales();
+    });
+  }
+
+  const btnVaciar = document.getElementById('btn-vaciar');
+  if (btnVaciar) {
+    btnVaciar.onclick = (e) => {
+      e.preventDefault();
+      carrito = [];
+      costoEnvio = 0;
+      guardarCarrito();
+      renderizarCarrito();
+    };
+  }
+
+  const form = document.getElementById('form-carrito');
+  if (form) {
+    form.onsubmit = (e) => {
+      e.preventDefault();
+      procesarPagoMercadoPago(e);
+    };
+  }
+
+  const btnFinalizar = document.getElementById('btn-finalizar');
+  if (btnFinalizar) {
+    btnFinalizar.onclick = (e) => {
+      e.preventDefault();
+      enviarPedidoWhatsApp();
+    };
+  }
 });

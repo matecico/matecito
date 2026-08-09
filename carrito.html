@@ -430,7 +430,8 @@
   <main class="seccion-carrito">
     <h1 class="titulo-pagina">Tu Carrito de Compras</h1>
 
-    <div class="grid-carrito">
+    <!-- FORMULARIO DE COMPRA -->
+    <form id="form-carrito" class="grid-carrito">
       
       <div class="columna-izquierda">
         <!-- PRODUCTOS -->
@@ -445,22 +446,22 @@
           <div class="grid-formulario">
             <div class="campo-form">
               <label for="cliente-nombre">Nombre y Apellido *</label>
-              <input type="text" id="cliente-nombre" placeholder="Juan Pérez">
+              <input type="text" id="cliente-nombre" placeholder="Juan Pérez" required>
             </div>
 
             <div class="campo-form">
               <label for="cliente-telefono">Teléfono / WhatsApp *</label>
-              <input type="text" id="cliente-telefono" placeholder="11 1234 5678">
+              <input type="text" id="cliente-telefono" placeholder="11 1234 5678" required>
             </div>
 
             <div class="campo-form">
               <label for="cliente-direccion">Dirección y Número *</label>
-              <input type="text" id="cliente-direccion" placeholder="Av. Rivadavia 1234, Dpto 2B">
+              <input type="text" id="cliente-direccion" placeholder="Av. Rivadavia 1234, Dpto 2B" required>
             </div>
 
             <div class="campo-form">
               <label for="cliente-localidad">Localidad / Provincia *</label>
-              <input type="text" id="cliente-localidad" placeholder="CABA, Buenos Aires">
+              <input type="text" id="cliente-localidad" placeholder="CABA, Buenos Aires" required>
             </div>
 
             <div class="campo-form full-width">
@@ -477,10 +478,10 @@
         <hr class="divisor-resumen">
 
         <div class="caja-envio">
-          <label for="input-cp">Calcular Envío (Código Postal)</label>
+          <label for="input-cp">Calcular Envío (Código Postal) *</label>
           <div class="grupo-input-cp">
-            <input type="text" id="input-cp" placeholder="Ej: 1425" maxlength="5">
-            <button id="btn-calcular-cp">Calcular</button>
+            <input type="text" id="input-cp" placeholder="Ej: 1425" maxlength="5" required>
+            <button type="button" id="btn-calcular-cp">Calcular</button>
           </div>
           <div id="mensaje-envio" class="resultado-envio"></div>
         </div>
@@ -503,16 +504,23 @@
         </div>
 
         <div class="acciones-resumen">
-          <button id="btn-vaciar" class="btn-vaciar-carrito">Vaciar Carrito</button>
-          <button id="btn-pagar" class="btn-pagar-ahora">PAGAR</button>
-          <button id="btn-finalizar" class="btn-whatsapp-compra">FINALIZAR COMPRA POR WHATSAPP 📲</button>
+          <button type="button" id="btn-vaciar" class="btn-vaciar-carrito">Vaciar Carrito</button>
+          <button type="submit" id="btn-pagar" class="btn-pagar-ahora">PAGAR</button>
+          <button type="button" id="btn-finalizar" class="btn-whatsapp-compra">FINALIZAR COMPRA POR WHATSAPP 📲</button>
         </div>
       </div>
 
-    </div>
+    </form>
   </main>
 
   <script src="js/productos.js"></script>
-  <script src="js/script.js"></script>
+  <script src="js/script.js?v=100"></script>
 </body>
-</html>
+</html><div class="caja-envio">
+  <label for="input-cp">Calcular Envío (Código Postal) *</label>
+  <div class="grupo-input-cp">
+    <input type="text" id="input-cp" placeholder="Ej: 1425" maxlength="5" required>
+    <button type="button" id="btn-calcular-cp" onclick="calcularCostoEnvio()">Calcular</button>
+  </div>
+  <div id="mensaje-envio" class="resultado-envio"></div>
+</div>
