@@ -10,8 +10,8 @@ app.use(express.static('.')); // Permite servir tus archivos HTML directamente d
 
 // 1. DATOS DE MERCADO PAGO Y TELEGRAM
 const MP_ACCESS_TOKEN = 'APP_USR-1754797691994307-080810-e339511cbe3a9b0c843f612d56f1bb76-3601405030';
-const TELEGRAM_BOT_TOKEN = '8966386944:AAH80TZoT7VZGS9WHNTW99NjtCBj0iIZYE';
-const TELEGRAM_CHAT_ID = '8966386944';
+const TELEGRAM_BOT_TOKEN = '8966386944:AAH8OTZoT7V-ZGS9WHNtW99NjtCBj0iiZYE';
+const TELEGRAM_CHAT_ID = '7691781211';
 const URL_PUBLICA_SERVER = 'https://matecito.onrender.com';
 
 const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
