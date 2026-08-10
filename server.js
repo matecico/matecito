@@ -62,11 +62,11 @@ app.post('/api/crear-preferencia', async (req, res) => {
         console.log("ENVÍO RECIBIDO:", costoEnvio);
         console.log("----------------------------------------");
 
-        // NORMALIZAR PRODUCTOS Y APLICAR DESCUENTO DE CUPÓN
+        // NORMALIZAR PRODUCTOS Y APLICAR DESCUENTO DE CUPÓN (98% OFF -> queda al 2%)
         const itemsFormateados = (items || []).map(item => {
             let precioUnitario = Number(item.unit_price || item.precio || 0);
 
-            // Validar cupón MATES95
+            // Validar cupón MATES95 (aplica 98% de descuento, pagando el 2%)
             if (cupon && cupon.trim().toUpperCase() === 'MATES95') {
                 precioUnitario = precioUnitario * 0.02; 
             }
@@ -80,7 +80,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
             };
         });
 
-        // AGREGAR EL COSTO DE ENVÍO COMO UN ÍTEM APARTADO
+        // AGREGAR EL COSTO DE ENVÍO COMO UN ÍTEM APARTADO (siempre que sea mayor a 0)
         if (costoEnvio > 0) {
             itemsFormateados.push({
                 id: 'envio',
