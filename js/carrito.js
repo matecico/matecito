@@ -178,7 +178,7 @@ async function procesarPagoStrict(e) {
     return false;
   }
 
-  if (!cp || costoEnvio === 0 && cp !== "150722") {
+  if (!cp || costoEnvio === 0 && cp !== "15072") {
     alert('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
     if (inputCP) inputCP.focus();
     return false;
