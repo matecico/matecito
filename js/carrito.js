@@ -84,9 +84,9 @@ window.eliminarProducto = eliminarProducto;
 function calcularCostoEnvio() {
   const inputCP = document.querySelector('input[placeholder*="Postal" i], input[placeholder*="CP" i], #input-cp, #cp');
   const mensajeEnvio = document.getElementById('mensaje-envio');
-  const cp = inputCP ? inputCP.value.trim() : '';
+  const cpTexto = inputCP ? inputCP.value.trim() : '';
 
-  if (!cp) {
+  if (!cpTexto) {
     alert('⚠️ Por favor ingresá un Código Postal en la casilla correspondiente.');
     if (mensajeEnvio) {
       mensajeEnvio.style.color = '#ff4d4d';
@@ -97,14 +97,29 @@ function calcularCostoEnvio() {
     return;
   }
 
-  costoEnvio = 4500;
+  // Validación de código postal con envío gratis (150722)
+  if (cpTexto === "150722") {
+    costoEnvio = 0;
+  } else {
+    costoEnvio = 4500;
+  }
 
   if (mensajeEnvio) {
     mensajeEnvio.style.color = '#25d366';
-    mensajeEnvio.innerText = `Envío a CP ${cp}: $${costoEnvio.toLocaleString('es-AR')}`;
+    if (costoEnvio === 0) {
+      mensajeEnvio.innerText = `🎉 ¡Envío GRATIS aplicado para el CP ${cpTexto}!`;
+    } else {
+      mensajeEnvio.innerText = `Envío a CP ${cpTexto}: $${costoEnvio.toLocaleString('es-AR')}`;
+    }
   }
 
   cargarCarrito();
+
+  if (costoEnvio === 0) {
+    alert(`🎉 ¡Felicidades! Tenés envío gratis para el CP ${cpTexto}`);
+  } else {
+    alert(`✅ Envío calculado con éxito para CP ${cpTexto}: $${costoEnvio.toLocaleString('es-AR')}`);
+  }
 }
 
 function actualizarTotalesPantalla(subtotal) {
@@ -135,7 +150,6 @@ async function procesarPagoStrict(e) {
     return false;
   }
 
-  // Buscar inputs específicos por ID o Placeholder
   const inputNombre = document.querySelector('#cliente-nombre, input[name="nombre"], input[placeholder*="Nombre" i]');
   const inputTelefono = document.querySelector('#cliente-telefono, input[name="telefono"], input[placeholder*="Tel" i], input[placeholder*="WhatsApp" i]');
   const inputDireccion = document.querySelector('#cliente-direccion, input[name="direccion"], input[placeholder*="Direcci" i], input[placeholder*="Calle" i]');
@@ -146,7 +160,6 @@ async function procesarPagoStrict(e) {
   const direccion = inputDireccion ? inputDireccion.value.trim() : '';
   const cp = inputCP ? inputCP.value.trim() : '';
 
-  // VALIDACIONES OBLIGATORIAS
   if (!nombre) {
     alert('❌ Faltan datos: Por favor, ingresá tu Nombre y Apellido.');
     if (inputNombre) inputNombre.focus();
@@ -165,13 +178,12 @@ async function procesarPagoStrict(e) {
     return false;
   }
 
-  if (!cp || costoEnvio === 0) {
-    alert('❌ Envío no calculated: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
+  if (!cp || costoEnvio === 0 && cp !== "150722") {
+    alert('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
     if (inputCP) inputCP.focus();
     return false;
   }
 
-  // ARMADO DE ITEMS CON ENVÍO INCLUIDO
   const itemsAEnviar = carrito.map(prod => ({
     id: prod.id || 'prod',
     title: prod.nombre || prod.title,
@@ -179,12 +191,14 @@ async function procesarPagoStrict(e) {
     quantity: Number(prod.cantidad || prod.quantity || 1)
   }));
 
-  itemsAEnviar.push({
-    id: 'envio-domicilio',
-    title: 'Costo de Envío a Domicilio',
-    unit_price: Number(costoEnvio),
-    quantity: 1
-  });
+  if (costoEnvio > 0) {
+    itemsAEnviar.push({
+      id: 'envio-domicilio',
+      title: 'Costo de Envío a Domicilio',
+      unit_price: Number(costoEnvio),
+      quantity: 1
+    });
+  }
 
   const cliente = {
     nombre: nombre,
@@ -193,9 +207,9 @@ async function procesarPagoStrict(e) {
   };
 
   const btnPagar = document.getElementById('btn-pagar') || 
-                    Array.from(document.querySelectorAll('button')).find(el => 
-                      el.innerText.toLowerCase().includes('pagar')
-                    );
+                   Array.from(document.querySelectorAll('button')).find(el => 
+                     el.innerText.toLowerCase().includes('pagar')
+                   );
 
   if (btnPagar) {
     btnPagar.innerText = 'Cargando...';
@@ -236,7 +250,6 @@ window.pagar = procesarPagoStrict;
 document.addEventListener('DOMContentLoaded', () => {
   cargarCarrito();
 
-  // Intercepta todos los formularios HTML para evitar que envíen automáticamente
   const formularios = document.querySelectorAll('form');
   formularios.forEach(form => {
     form.addEventListener('submit', (e) => {
@@ -245,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Botón Calcular Envío
   const btnCalcular = document.getElementById('btn-calcular-cp') || 
                       Array.from(document.querySelectorAll('button')).find(el => 
                         el.innerText.toLowerCase().includes('calcular')
@@ -257,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Reiniciar costo de envío si modifican el input CP
   const inputCP = document.querySelector('#input-cp, #cp, input[placeholder*="Postal" i], input[placeholder*="CP" i]');
   if (inputCP) {
     inputCP.addEventListener('input', () => {
@@ -268,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botón Vaciar
   const btnVaciar = document.getElementById('btn-vaciar') || 
                     Array.from(document.querySelectorAll('button, a')).find(el => 
                       el.innerText.toLowerCase().includes('vaciar')
@@ -283,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Botón PAGAR
   const btnPagar = document.getElementById('btn-pagar') || 
                     Array.from(document.querySelectorAll('button, a')).find(el => 
                       el.innerText.toLowerCase().includes('pagar')
