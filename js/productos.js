@@ -53,7 +53,7 @@ const productos = [
   {
     id: 8,
     nombre: "Bombilla Pico de Loro",
-    precio: 4878,
+    precio: 10,
     imagen: "img/bombilla.png",
     descripcion: "Bombilla pico de loro de acero inoxidable."
   }
