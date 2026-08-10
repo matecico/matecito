@@ -52,27 +52,47 @@ async function enviarNotificacionTelegram(mensaje) {
 // 3. RUTA PARA CREAR PREFERENCIA Y NOTIFICAR
 app.post('/api/crear-preferencia', async (req, res) => {
     try {
-        const { items, cliente } = req.body;
+        const { items, cliente, cupon } = req.body;
 
-        // NORMALIZAR PRODUCTOS
-        const itemsFormateados = (items || []).map(item => ({
-            id: String(item.id || '1'),
-            title: String(item.title || item.nombre || 'Producto MateCico'),
-            unit_price: Number(item.unit_price || item.precio || 0),
-            quantity: Number(item.quantity || item.cantidad || 1),
-            currency_id: 'ARS'
-        }));
+        // NORMALIZAR PRODUCTOS Y APLICAR DESCUENTO DE CUPÓN
+        const itemsFormateados = (items || []).map(item => {
+            let precioUnitario = Number(item.unit_price || item.precio || 0);
+
+            // Validar cupón MATE95 (99% de descuento según tu vista previa)
+            if (cupon && cupon.trim().toUpperCase() === 'MATE95') {
+                precioUnitario = precioUnitario * 0.01; 
+            }
+
+            return {
+                id: String(item.id || '1'),
+                title: String(item.title || item.nombre || 'Producto MateCico'),
+                unit_price: Number(precioUnitario.toFixed(2)),
+                quantity: Number(item.quantity || item.cantidad || 1),
+                currency_id: 'ARS'
+            };
+        });
 
         // Calcular total y lista
         const total = itemsFormateados.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
         const listaProd = itemsFormateados.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
 
-        // Mensaje limpio para Telegram
-        const avisoTelegram = `🛒 <b>¡NUEVO PEDIDO INICIADO!</b> 🛒\n\n` +
+        // Determinar método de entrega (Retiro o Envío)
+        const metodoEntrega = cliente?.metodo || 'envio';
+        let textoMetodo = metodoEntrega === 'retiro' 
+            ? '🏪 <b>RETIRO EN LOCAL (H. Yrigoyen 710)</b>' 
+            : `🚚 <b>ENVÍO A DOMICILIO</b>\n📍 <b>Dirección:</b> ${cliente?.direccion || 'No especificada'}, ${cliente?.localidad || ''}`;
+
+        // Mensaje limpio para Telegram (refleja el total con descuento)
+        let avisoTelegram = `🛒 <b>¡NUEVO PEDIDO INICIADO!</b> 🛒\n\n` +
             `👤 <b>Cliente:</b> ${cliente?.nombre || 'No especificado'}\n` +
-            `📍 <b>Dirección:</b> ${cliente?.direccion || 'No especificada'}\n` +
             `📞 <b>Teléfono:</b> ${cliente?.telefono || 'No especificado'}\n` +
-            `💵 <b>Total:</b> $${total}\n\n` +
+            `📦 <b>Método:</b> ${textoMetodo}\n`;
+        
+        if (cupon) {
+            avisoTelegram += `🎟️ <b>Cupón Aplicado:</b> ${cupon.toUpperCase()}\n`;
+        }
+
+        avisoTelegram += `💵 <b>Total:</b> $${total}\n\n` +
             `📦 <b>Productos:</b>\n${listaProd}`;
         
         await enviarNotificacionTelegram(avisoTelegram);
@@ -91,8 +111,11 @@ app.post('/api/crear-preferencia', async (req, res) => {
                 notification_url: `${URL_PUBLICA_SERVER}/api/webhook-mp`,
                 metadata: {
                     cliente_nombre: cliente?.nombre || 'No especificado',
+                    cliente_telefono: cliente?.telefono || 'No especificado',
+                    metodo_entrega: metodoEntrega,
                     cliente_direccion: cliente?.direccion || 'No especificada',
-                    cliente_telefono: cliente?.telefono || 'No especificado'
+                    cliente_localidad: cliente?.localidad || 'No especificada',
+                    cupon_usado: cupon || 'Ninguno'
                 }
             }
         });
@@ -126,11 +149,22 @@ app.post('/api/webhook-mp', async (req, res) => {
 
                         let listaProductos = items.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
 
-                        const mensaje = `✅ <b>¡COMPRA PAGADA Y APROBADA!</b> ✅\n\n` +
+                        // Recuperar método de entrega desde los metadatos de Mercado Pago
+                        const metodoEntrega = metadata.metodo_entrega || 'envio';
+                        let textoMetodoWebhook = metodoEntrega === 'retiro' 
+                            ? '🏪 <b>RETIRO EN LOCAL (H. Yrigoyen 710)</b>' 
+                            : `🚚 <b>ENVÍO A DOMICILIO</b>\n📍 <b>Dirección:</b> ${metadata.cliente_direccion || 'N/A'}, ${metadata.cliente_localidad || ''}`;
+
+                        let mensaje = `✅ <b>¡COMPRA PAGADA Y APROBADA!</b> ✅\n\n` +
                             `👤 <b>Cliente:</b> ${metadata.cliente_nombre || 'N/A'}\n` +
-                            `📍 <b>Dirección:</b> ${metadata.cliente_direccion || 'N/A'}\n` +
                             `📞 <b>Teléfono:</b> ${metadata.cliente_telefono || 'N/A'}\n` +
-                            `💵 <b>Total Pagado:</b> $${paymentData.transaction_amount}\n\n` +
+                            `📦 <b>Método:</b> ${textoMetodoWebhook}\n`;
+
+                        if (metadata.cupon_usado && metadata.cupon_usado !== 'Ninguno') {
+                            mensaje += `🎟️ <b>Cupón:</b> ${metadata.cupon_usado}\n`;
+                        }
+
+                        mensaje += `💵 <b>Total Pagado:</b> $${paymentData.transaction_amount}\n\n` +
                             `📦 <b>Productos:</b>\n${listaProductos}`;
 
                         await enviarNotificacionTelegram(mensaje);

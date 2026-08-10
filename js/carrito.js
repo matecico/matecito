@@ -2,16 +2,16 @@
 let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 let costoEnvio = 0;
 let porcentajeDescuento = 0; // Variable para el cupón
+let codigoCuponAplicado = ''; // Almacena el código del cupón activo
 
 function guardarCarrito() {
   localStorage.setItem('carrito', JSON.stringify(carrito));
 }
 
-// FUNCIÓN AUXILIAR PARA MENSAJES VISUALES (Reemplaza los alert)
+// FUNCIÓN AUXILIAR PARA MENSAJES VISUALES
 function mostrarMensaje(texto, tipo = 'error') {
   let contenedor = document.getElementById('mensaje-global-alerta');
   if (!contenedor) {
-    // Si no existe el contenedor en el HTML, lo creamos dinámicamente arriba del botón pagar
     contenedor = document.createElement('div');
     contenedor.id = 'mensaje-global-alerta';
     contenedor.style.padding = '10px';
@@ -34,7 +34,6 @@ function mostrarMensaje(texto, tipo = 'error') {
   contenedor.style.border = `1px solid ${tipo === 'exito' ? '#25d366' : '#ff4d4d'}`;
   contenedor.innerText = texto;
 
-  // Hacer scroll suave hacia el mensaje para que el usuario lo vea
   contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -122,22 +121,23 @@ function eliminarProducto(index) {
 window.cambiarCantidad = cambiarCantidad;
 window.eliminarProducto = eliminarProducto;
 
-// LÓGICA DE CUPÓN
+// LÓGICA DE CUPÓN (Sincronizado con MATE95)
 function aplicarCupon() {
   limpiarMensaje();
   const inputCupon = document.getElementById('input-cupon');
   const mensajeCupon = document.getElementById('mensaje-cupon');
   const codigo = inputCupon ? inputCupon.value.trim().toUpperCase() : '';
 
-  if (codigo === "MESSETEAMO") {
-    porcentajeDescuento = 1; 
-    costoEnvio = 0;
+  if (codigo === "MATE95") {
+    porcentajeDescuento = 0.99; // 99% de descuento para dejarlo a precio mínimo en prueba
+    codigoCuponAplicado = 'MATE95';
     if (mensajeCupon) {
       mensajeCupon.style.color = '#25d366';
-      mensajeCupon.innerText = '🎁 ¡Cupón aplicado! Compra totalmente GRATIS.';
+      mensajeCupon.innerText = '🎁 ¡Cupón MATE95 aplicado correctamente!';
     }
   } else {
     porcentajeDescuento = 0;
+    codigoCuponAplicado = '';
     if (mensajeCupon) {
       mensajeCupon.style.color = '#ff4d4d';
       mensajeCupon.innerText = '❌ Cupón no válido.';
@@ -154,8 +154,7 @@ function calcularCostoEnvio() {
   const mensajeEnvio = document.getElementById('mensaje-envio');
   const cpTexto = inputCP ? inputCP.value.trim() : '';
 
-  if (!cpTexto && porcentajeDescuento !== 1) {
-    mostrarMensaje('⚠️ Por favor ingresá un Código Postal en la casilla correspondiente.', 'error');
+  if (!cpTexto && porcentajeDescuento !== 0.99) {
     if (mensajeEnvio) {
       mensajeEnvio.style.color = '#ff4d4d';
       mensajeEnvio.innerText = 'Ingresá un código postal válido';
@@ -165,19 +164,11 @@ function calcularCostoEnvio() {
     return;
   }
 
-  if (porcentajeDescuento === 1 || cpTexto === "150722") {
-    costoEnvio = 0;
-  } else {
-    costoEnvio = 0;
-  }
+  costoEnvio = 0;
 
   if (mensajeEnvio) {
     mensajeEnvio.style.color = '#25d366';
-    if (costoEnvio === 0) {
-      mensajeEnvio.innerText = `🎉 ¡Envío GRATIS aplicado!`;
-    } else {
-      mensajeEnvio.innerText = `Envío a CP ${cpTexto}: $${costoEnvio.toLocaleString('es-AR')}`;
-    }
+    mensajeEnvio.innerText = `🎉 ¡Envío aplicado con éxito!`;
   }
 
   cargarCarrito();
@@ -190,7 +181,7 @@ function actualizarTotalesPantalla(subtotalConDescuento) {
   if (elemCostoEnvio) elemCostoEnvio.innerText = (costoEnvio === 0) ? 'GRATIS' : `$${costoEnvio.toLocaleString('es-AR')}`;
 
   const elemTotal = document.getElementById('total-precio') || document.getElementById('total-lista');
-  if (elemTotal) elemTotal.innerText = `$${totalConEnvio.toLocaleString('es-AR')}`;
+  if (elemTotal) elemTotal.innerText = `$${Math.round(totalConEnvio).toLocaleString('es-AR')}`;
 
   const elemTotalTransf = document.getElementById('total-transferencia');
   if (elemTotalTransf) {
@@ -199,7 +190,7 @@ function actualizarTotalesPantalla(subtotalConDescuento) {
   }
 }
 
-// 4. PROCESAR PAGO CON VALIDACIONES ESTRICTAS (CORREGIDO CON /api/)
+// 4. PROCESAR PAGO CON VALIDACIONES Y ENVÍO DE CUPÓN
 async function procesarPagoStrict(e) {
   if (e) {
     e.preventDefault();
@@ -213,23 +204,13 @@ async function procesarPagoStrict(e) {
     return false;
   }
 
-  if (porcentajeDescuento === 1) {
-    mostrarMensaje('🎉 ¡Tu pedido ha sido procesado exitosamente como regalo!', 'exito');
-    carrito = [];
-    guardarCarrito();
-    cargarCarrito();
-    return false;
-  }
-
   const inputNombre = document.querySelector('#cliente-nombre, input[name="nombre"], input[placeholder*="Nombre" i]');
   const inputTelefono = document.querySelector('#cliente-telefono, input[name="telefono"], input[placeholder*="Tel" i], input[placeholder*="WhatsApp" i]');
   const inputDireccion = document.querySelector('#cliente-direccion, input[name="direccion"], input[placeholder*="Direcci" i], input[placeholder*="Calle" i]');
-  const inputCP = document.querySelector('#input-cp, #cp, input[placeholder*="Postal" i], input[placeholder*="CP" i]');
 
   const nombre = inputNombre ? inputNombre.value.trim() : '';
   const telefono = inputTelefono ? inputTelefono.value.trim() : '';
   const direccion = inputDireccion ? inputDireccion.value.trim() : '';
-  const cp = inputCP ? inputCP.value.trim() : '';
 
   if (!nombre) {
     mostrarMensaje('❌ Faltan datos: Por favor, ingresá tu Nombre y Apellido.', 'error');
@@ -249,27 +230,12 @@ async function procesarPagoStrict(e) {
     return false;
   }
 
-  if (!cp || (costoEnvio === 0 && cp !== "150722")) {
-    mostrarMensaje('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.', 'error');
-    if (inputCP) inputCP.focus();
-    return false;
-  }
-
   const itemsAEnviar = carrito.map(prod => ({
     id: prod.id || 'prod',
     title: prod.nombre || prod.title,
     unit_price: Number(prod.precio || prod.unit_price),
     quantity: Number(prod.cantidad || prod.quantity || 1)
   }));
-
-  if (costoEnvio > 0) {
-    itemsAEnviar.push({
-      id: 'envio-domicilio',
-      title: 'Costo de Envío a Domicilio',
-      unit_price: Number(costoEnvio),
-      quantity: 1
-    });
-  }
 
   const cliente = {
     nombre: nombre,
@@ -278,9 +244,9 @@ async function procesarPagoStrict(e) {
   };
 
   const btnPagar = document.getElementById('btn-pagar') || 
-                    Array.from(document.querySelectorAll('button')).find(el => 
-                      el.innerText.toLowerCase().includes('pagar')
-                    );
+                   Array.from(document.querySelectorAll('button')).find(el => 
+                     el.innerText.toLowerCase().includes('pagar')
+                   );
 
   if (btnPagar) {
     btnPagar.innerText = 'Cargando...';
@@ -288,13 +254,14 @@ async function procesarPagoStrict(e) {
   }
 
   try {
-    // AQUÍ ESTABA EL ERROR: Se agregó el /api/ al endpoint
+    // AQUÍ SE AGREGA EL PARÁMETRO "cupon" PARA QUE EL BACKEND APLIQUE EL DESCUENTO
     const respuesta = await fetch('https://matecito.onrender.com/api/crear-preferencia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         items: itemsAEnviar,
-        cliente: cliente
+        cliente: cliente,
+        cupon: codigoCuponAplicado 
       })
     });
 
@@ -349,16 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const inputCP = document.querySelector('#input-cp, #cp, input[placeholder*="Postal" i], input[placeholder*="CP" i]');
-  if (inputCP) {
-    inputCP.addEventListener('input', () => {
-      costoEnvio = 0;
-      const msj = document.getElementById('mensaje-envio');
-      if (msj) msj.innerText = '';
-      cargarCarrito();
-    });
-  }
-
   const btnVaciar = document.getElementById('btn-vaciar') || 
                     Array.from(document.querySelectorAll('button, a')).find(el => 
                       el.innerText.toLowerCase().includes('vaciar')
@@ -368,6 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       carrito = [];
       costoEnvio = 0;
+      codigoCuponAplicado = '';
+      porcentajeDescuento = 0;
       guardarCarrito();
       cargarCarrito();
     });
