@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MateCico - Inicio</title>
+  <title>MateCico - Catálogo de Productos</title>
   <style>
     /* RESET Y ESTILOS GLOBALES */
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,20 +16,75 @@
     .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.4rem; color: #ffffff !important; }
     .logo-img { width: 38px !important; height: 38px !important; object-fit: cover !important; border-radius: 50%; }
     
-    /* BUSCADOR */
-    .buscador-wrapper { position: relative; flex: 1; max-width: 400px; min-width: 220px; width: 100%; display: flex; background-color: #121212; border: 1px solid #333; border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
+    /* BUSCADOR UNIFICADO */
+    .buscador-wrapper { 
+      position: relative; 
+      flex: 1; 
+      max-width: 400px; 
+      min-width: 220px; 
+      width: 100%; 
+      display: flex; 
+      background-color: #121212; 
+      border: 1px solid #333; 
+      border-radius: 6px; 
+      overflow: hidden; 
+      transition: border-color 0.2s; 
+    }
     .buscador-wrapper:focus-within { border-color: #25d366; }
-    .buscador-input { width: 100%; padding: 10px 15px; background: transparent; border: none; color: #fff; font-size: 0.9rem; outline: none; }
-    .btn-buscar-lupa { background-color: #25d366; color: #121212; border: none; padding: 0 18px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; border-radius: 0; }
+    
+    .buscador-input { 
+      width: 100%; 
+      padding: 10px 15px; 
+      background: transparent; 
+      border: none; 
+      color: #fff; 
+      font-size: 0.9rem; 
+      outline: none; 
+    }
+    
+    .btn-buscar-lupa { 
+      background-color: #25d366; 
+      color: #121212; 
+      border: none; 
+      padding: 0 18px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: opacity 0.2s; 
+      border-radius: 0; 
+    }
     .btn-buscar-lupa:hover { opacity: 0.9; }
 
-    /* DROPDOWN */
-    .sugerencias-dropdown { position: absolute; top: 100%; left: 0; right: 0; background-color: #1e1e1e; border: 1px solid #333; border-radius: 6px; margin-top: 5px; max-height: 250px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
-    .sugerencia-item { padding: 10px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #2a2a2a; color: #fff; font-size: 0.9rem; transition: background 0.2s; }
+    /* DROPDOWN DE RECOMENDACIONES */
+    .sugerencias-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 6px;
+      margin-top: 5px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .sugerencia-item {
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #2a2a2a;
+      color: #fff;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .sugerencia-item:last-child { border-bottom: none; }
     .sugerencia-item:hover { background-color: #2a2a2a; color: #25d366; }
-    .sugerencia-img { width: 35px; height: 35px; object-fit: contain; background: #121212; border-radius: 4px; padding: 2px; }
+    .sugerencia-img { width: 35px; height: 35px; object-fit: cover; background: #121212; border-radius: 4px; }
 
-    /* NAV LINKS */
     .nav-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: center; }
     .nav-links a { color: #cccccc !important; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
     .nav-links a:hover, .nav-links a.active { color: #25d366 !important; }
@@ -39,28 +94,40 @@
         .nav-top { width: auto; } 
     }
 
-    /* HERO */
-    .hero { position: relative; height: 450px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 20px; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('img/comboset.png') center/cover no-repeat; border-bottom: 1px solid #2a2a2a; }
-    .hero h1 { font-size: 2.8rem; margin-bottom: 15px; font-weight: bold; color: #fff; }
-    .hero p { font-size: 1.1rem; max-width: 600px; margin-bottom: 25px; color: #ddd; }
-    .hero-btn { background-color: #25d366; color: #121212; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 1rem; transition: opacity 0.2s; }
-    .hero-btn:hover { opacity: 0.9; }
-
-    /* GRID PRODUCTOS */
-    .seccion-destacados { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 30px; }
+    /* SECCIÓN CATÁLOGO */
+    .seccion-catalogo { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 30px; }
     .seccion-titulo { font-size: 2rem; color: #fff; border-left: 4px solid #25d366; padding-left: 12px; }
+    
     .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px; }
     .card-prod { background-color: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
     .card-prod:hover { transform: translateY(-5px); border-color: #25d366; }
-    .card-prod-img-container { width: 100%; height: 200px; background: #181818; display: flex; align-items: center; justify-content: center; padding: 15px; overflow: hidden; }
-    .card-prod-img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.3s ease; }
-    .card-prod:hover .card-prod-img { transform: scale(1.05); }
+    
+    /* CONTENEDOR DE IMAGEN AJUSTADO A COVER */
+    .card-prod-img-container {
+      width: 100%;
+      height: 220px;
+      background: #181818;
+      overflow: hidden;
+    }
+    .card-prod-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .card-prod:hover .card-prod-img {
+      transform: scale(1.05);
+    }
+    
     .card-prod-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
     .card-prod-title { font-size: 1.1rem; color: #fff; font-weight: bold; }
+    
+    /* PRECIOS EN TARJETA */
     .card-prod-precios { display: flex; flex-direction: column; gap: 6px; background: #121212; padding: 10px; border-radius: 6px; border: 1px solid #2a2a2a; }
     .card-precio-trans { font-size: 1.1rem; font-weight: bold; color: #25d366; }
     .card-precio-tarj { font-size: 0.95rem; font-weight: bold; color: #ffd700; }
     .card-span-chico { font-size: 0.72rem; color: #aaa; font-weight: normal; display: block; }
+
     .card-prod-btn { background-color: #25d366; color: #121212; border: none; padding: 10px; border-radius: 6px; font-weight: bold; text-align: center; transition: opacity 0.2s; margin-top: 5px; }
     .card-prod-btn:hover { opacity: 0.9; }
   </style>
@@ -83,24 +150,17 @@
       </div>
 
       <div class="nav-links">
-        <!-- AQUÍ ESTÁ EL CAMBIO: El "active" está en INICIO y ya no en PRODUCTOS -->
-        <a href="index.html" class="active">INICIO</a>
-        <a href="productos.html">PRODUCTOS</a>
+        <a href="index.html">INICIO</a>
+        <a href="productos.html" class="active">PRODUCTOS</a>
         <a href="contacto.html">CONTACTO</a>
         <a href="carrito.html">🛒 CARRITO</a>
       </div>
     </nav>
   </header>
 
-  <section class="hero">
-    <h1>Bienvenidos a MateCico</h1>
-    <p>Los mejores mates imperiales, termos y accesorios materos con la mejor calidad del mercado.</p>
-    <a href="productos.html" class="hero-btn">Ver Catálogo</a>
-  </section>
-
-  <main class="seccion-destacados">
-    <h2 class="seccion-titulo">Productos Destacados</h2>
-    <div class="grid-productos" id="grid-destacados"></div>
+  <main class="seccion-catalogo">
+    <h2 class="seccion-titulo" id="tituloCatalogo">Catálogo de Productos</h2>
+    <div class="grid-productos" id="grid-catalogo"></div>
   </main>
 
   <script>
@@ -115,21 +175,30 @@
       { id: 8, nombre: "Bombilla Pico de Loro", precio: 4500, imagen: "img/bombilla.png" }
     ];
 
-    // Lógica de búsqueda, renderizado, etc... (la misma que tenías antes)
     function manejarInputBusqueda(event) {
       const texto = event.target.value.toLowerCase().trim();
       const dropdown = document.getElementById('sugerenciasDropdown');
-      if (texto === '') { dropdown.style.display = 'none'; dropdown.innerHTML = ''; return; }
+
+      if (texto === '') {
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+        return;
+      }
+
       const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(texto));
+
       if (filtrados.length > 0) {
-        dropdown.innerHTML = filtrados.map(p => `
-          <div class="sugerencia-item" onclick="window.location.href='producto.html?id=${p.id}'">
-            <img src="${p.imagen}" alt="${p.nombre}" class="sugerencia-img" onerror="this.src='img/placeholder.jpg'">
-            <div>
-              <div style="font-weight: bold;">${p.nombre}</div>
-              <div style="color: #25d366; font-size: 0.8rem;">$${p.precio.toLocaleString('es-AR')}</div>
+        dropdown.innerHTML = filtrados.map(p => {
+          return `
+            <div class="sugerencia-item" onclick="window.location.href='producto.html?id=${p.id}'">
+              <img src="${p.imagen}" alt="${p.nombre}" class="sugerencia-img" onerror="this.src='img/placeholder.jpg'">
+              <div>
+                <div style="font-weight: bold;">${p.nombre}</div>
+                <div style="color: #25d366; font-size: 0.8rem;">$${p.precio.toLocaleString('es-AR')}</div>
+              </div>
             </div>
-          </div>`).join('');
+          `;
+        }).join('');
         dropdown.style.display = 'block';
       } else {
         dropdown.innerHTML = `<div style="padding: 10px 15px; color: #888; font-size: 0.85rem;">No se encontraron productos</div>`;
@@ -139,34 +208,58 @@
 
     document.addEventListener('click', (e) => {
       const wrapper = document.querySelector('.buscador-wrapper');
-      if (!wrapper.contains(e.target)) document.getElementById('sugerenciasDropdown').style.display = 'none';
+      if (!wrapper.contains(e.target)) {
+        document.getElementById('sugerenciasDropdown').style.display = 'none';
+      }
     });
 
-    function chequearEnter(event) { if (event.key === 'Enter') ejecutarBusqueda(); }
-    function ejecutarBusqueda() {
-      const texto = document.getElementById('inputBuscador').value.trim();
-      if (texto !== '') window.location.href = `productos.html?buscar=${encodeURIComponent(texto)}`;
+    function chequearEnter(event) {
+      if (event.key === 'Enter') {
+        ejecutarBusqueda();
+      }
     }
 
-    const gridDestacados = document.getElementById('grid-destacados');
-    const destacados = productos.slice(0, 3);
-    gridDestacados.innerHTML = destacados.map(p => {
-      const precioTarjeta = Math.round(p.precio * 1.08);
-      return `
-        <div class="card-prod" onclick="window.location.href='producto.html?id=${p.id}'">
-          <div class="card-prod-img-container">
-            <img src="${p.imagen}" alt="${p.nombre}" class="card-prod-img" onerror="this.src='img/placeholder.jpg'">
-          </div>
-          <div class="card-prod-body">
-            <h3 class="card-prod-title">${p.nombre}</h3>
-            <div class="card-prod-precios">
-              <span class="card-precio-trans">$${p.precio.toLocaleString('es-AR')} <span class="card-span-chico">Transferencia bancaria</span></span>
-              <span class="card-precio-tarj">$${precioTarjeta.toLocaleString('es-AR')} <span class="card-span-chico">Tarjeta de crédito / débito</span></span>
+    function ejecutarBusqueda() {
+      const texto = document.getElementById('inputBuscador').value.trim();
+      if (texto !== '') {
+        window.location.href = `productos.html?buscar=${encodeURIComponent(texto)}`;
+      }
+    }
+
+    // Filtrar por parámetro de búsqueda si existe en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const busquedaQuery = urlParams.get('buscar');
+
+    let productosMostrados = productos;
+    if (busquedaQuery) {
+      document.getElementById('tituloCatalogo').innerText = `Resultados para: "${busquedaQuery}"`;
+      productosMostrados = productos.filter(p => p.nombre.toLowerCase().includes(busquedaQuery.toLowerCase()));
+    }
+
+    const gridCatalogo = document.getElementById('grid-catalogo');
+    
+    if (productosMostrados.length > 0) {
+      gridCatalogo.innerHTML = productosMostrados.map(p => {
+        const precioTarjeta = Math.round(p.precio * 1.08);
+        return `
+          <div class="card-prod" onclick="window.location.href='producto.html?id=${p.id}'">
+            <div class="card-prod-img-container">
+              <img src="${p.imagen}" alt="${p.nombre}" class="card-prod-img" onerror="this.src='img/placeholder.jpg'">
             </div>
-            <button class="card-prod-btn">Ver Detalle</button>
+            <div class="card-prod-body">
+              <h3 class="card-prod-title">${p.nombre}</h3>
+              <div class="card-prod-precios">
+                <span class="card-precio-trans">$${p.precio.toLocaleString('es-AR')} <span class="card-span-chico">Transferencia bancaria</span></span>
+                <span class="card-precio-tarj">$${precioTarjeta.toLocaleString('es-AR')} <span class="card-span-chico">Tarjeta de crédito / débito</span></span>
+              </div>
+              <button class="card-prod-btn">Ver Detalle</button>
+            </div>
           </div>
-        </div>`;
-    }).join('');
+        `;
+      }).join('');
+    } else {
+      gridCatalogo.innerHTML = `<p style="color: #aaa; grid-column: 1/-1;">No se encontraron productos que coincidan con la búsqueda.</p>`;
+    }
   </script>
 </body>
 </html>

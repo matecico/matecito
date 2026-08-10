@@ -3,261 +3,384 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalle de Producto - MateCico</title>
-  
+  <title>MateCico - Detalle del Producto</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background-color: #121212;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      min-height: 100vh;
-    }
-
-    a, a:visited, a:hover, a:active {
-      text-decoration: none !important;
-      color: inherit !important;
-    }
+    /* RESET Y ESTILOS GLOBALES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #121212; color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif; overflow-x: hidden; min-height: 100vh; width: 100%; }
+    a, a:visited, a:hover, a:active { text-decoration: none !important; color: inherit !important; }
 
     /* NAVBAR */
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      background-color: #181818;
-      border-bottom: 1px solid #262626;
+    .navbar { display: flex; flex-direction: column; align-items: center; padding: 15px 20px; background-color: #1e1e1e; border-bottom: 1px solid #2a2a2a; gap: 15px; width: 100%; }
+    .nav-top { display: flex; width: 100%; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.4rem; color: #ffffff !important; }
+    .logo-img { width: 38px !important; height: 38px !important; object-fit: cover !important; border-radius: 50%; }
+    
+    /* BUSCADOR UNIFICADO */
+    .buscador-wrapper { 
+      position: relative; 
+      flex: 1; 
+      max-width: 400px; 
+      min-width: 220px; 
+      width: 100%; 
+      display: flex; 
+      background-color: #121212; 
+      border: 1px solid #333; 
+      border-radius: 6px; 
+      overflow: hidden; 
+      transition: border-color 0.2s; 
     }
+    .buscador-wrapper:focus-within { border-color: #25d366; }
+    
+    .buscador-input { 
+      width: 100%; 
+      padding: 10px 15px; 
+      background: transparent; 
+      border: none; 
+      color: #fff; 
+      font-size: 0.9rem; 
+      outline: none; 
+    }
+    
+    .btn-buscar-lupa { 
+      background-color: #25d366; 
+      color: #121212; 
+      border: none; 
+      padding: 0 18px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: opacity 0.2s; 
+      border-radius: 0; 
+    }
+    .btn-buscar-lupa:hover { opacity: 0.9; }
 
-    .logo {
+    /* DROPDOWN DE RECOMENDACIONES */
+    .sugerencias-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 6px;
+      margin-top: 5px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .sugerencia-item {
+      padding: 10px 15px;
       display: flex;
       align-items: center;
       gap: 12px;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-
-    .logo-img {
-      width: 40px !important;
-      height: 40px !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .nav-links a {
-      color: #cccccc !important;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-links a:hover {
-      color: #25d366 !important;
-    }
-
-    /* CONTENEDOR PRINCIPAL */
-    .seccion-producto {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
-
-    .breadcrumb {
-      font-size: 0.85rem;
-      color: #888888;
-      margin-bottom: 25px;
-    }
-
-    .breadcrumb a {
-      color: #aaaaaa !important;
-    }
-
-    /* LAYOUT DEL DETALLE DE PRODUCTO */
-    .grid-detalle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: start;
-      background-color: #1e1e1e;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 30px;
-    }
-
-    @media (max-width: 768px) {
-      .grid-detalle {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* CONTROL DE TAMAÑO DE LA IMAGEN */
-    .contenedor-imagen-detalle {
-      width: 100%;
-      max-height: 420px;
-      background-color: #1a1a1a;
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .contenedor-imagen-detalle img,
-    #imagen-producto,
-    .grid-detalle img {
-      width: 100% !important;
-      max-height: 420px !important;
-      object-fit: contain !important;
-      display: block !important;
-      border-radius: 8px !important;
-    }
-
-    /* DETALLES DE TEXTO Y PRECIOS */
-    .info-detalle h1 {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #ffffff;
-      margin-bottom: 10px;
-    }
-
-    .subtitulo-marca {
-      font-size: 0.8rem;
-      color: #888888;
-      font-weight: bold;
-      letter-spacing: 1px;
-      margin-bottom: 15px;
-    }
-
-    .precios-detalle {
-      margin: 20px 0;
-    }
-
-    .precio-lista-detalle {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #ffffff;
-      margin-bottom: 5px;
-    }
-
-    .precio-transf-detalle {
-      font-size: 1.2rem;
-      color: #25d366;
-      font-weight: bold;
-    }
-
-    .descripcion-producto {
-      color: #cccccc;
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin: 20px 0 30px 0;
-    }
-
-    .btn-agregar-detalle {
-      width: 100%;
-      background-color: #25d366 !important;
-      color: #000000 !important;
-      border: none !important;
-      padding: 14px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1rem;
       cursor: pointer;
-      letter-spacing: 0.5px;
+      border-bottom: 1px solid #2a2a2a;
+      color: #fff;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .sugerencia-item:last-child { border-bottom: none; }
+    .sugerencia-item:hover { background-color: #2a2a2a; color: #25d366; }
+    .sugerencia-img { width: 35px; height: 35px; object-fit: contain; background: #121212; border-radius: 4px; padding: 2px; }
+
+    .nav-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    .nav-links a { color: #cccccc !important; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: #25d366 !important; }
+    
+    @media (min-width: 769px) { 
+        .navbar { flex-direction: row; justify-content: space-between; padding: 15px 40px; } 
+        .nav-top { width: auto; } 
     }
 
-    .btn-agregar-detalle:hover {
-      background-color: #1ebd56 !important;
+    /* DETALLE DE PRODUCTO */
+    .detalle-wrapper { max-width: 1100px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    @media(max-width: 768px) { .detalle-wrapper { grid-template-columns: 1fr; } }
+
+    .detalle-img-container { background: transparent; border: none; padding: 0; display: flex; align-items: center; justify-content: center; height: 400px; overflow: hidden; }
+    .detalle-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+    .detalle-img:hover { transform: scale(1.02); }
+
+    /* MODAL PARA AMPLIAR IMAGEN */
+    .modal-imagen {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
     }
+    .modal-imagen img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      border-radius: 8px;
+      cursor: default;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+
+    .detalle-info { display: flex; flex-direction: column; gap: 20px; }
+    .detalle-titulo { font-size: 2.2rem; font-weight: bold; color: #fff; }
+    .detalle-desc { color: #aaa; font-size: 1rem; line-height: 1.5; }
+    
+    .detalle-precios { background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .precio-trans { font-size: 1.8rem; font-weight: bold; color: #25d366; }
+    .precio-tarj { font-size: 1.3rem; font-weight: bold; color: #ffd700; }
+    .span-chico { font-size: 0.8rem; color: #aaa; font-weight: normal; }
+
+    .cantidad-container { display: flex; align-items: center; gap: 15px; }
+    .cantidad-controles { display: flex; align-items: center; background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 6px; overflow: hidden; }
+    .btn-cant { background: transparent; border: none; color: #fff; padding: 10px 15px; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+    .btn-cant:hover { background: #2a2a2a; }
+    .input-cant { width: 50px; text-align: center; background: transparent; border: none; color: #fff; font-size: 1rem; outline: none; }
+
+    .btn-agregar { background-color: #25d366; color: #121212; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; text-align: center; transition: opacity 0.2s, background-color 0.2s; }
+    .btn-agregar:hover { opacity: 0.9; }
+    .btn-comprar { background-color: #f39c12; color: #121212; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; text-align: center; transition: opacity 0.2s; }
+    .btn-comprar:hover { opacity: 0.9; }
+
+    /* SECCIÓN PRODUCTOS RECOMENDADOS */
+    .recomendados-wrapper { max-width: 1100px; margin: 60px auto 40px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 25px; border-top: 1px solid #2a2a2a; padding-top: 40px; }
+    .seccion-titulo { font-size: 1.8rem; color: #fff; border-left: 4px solid #25d366; padding-left: 12px; }
+    
+    .grid-productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+    .card-prod { background-color: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-prod:hover { transform: translateY(-5px); border-color: #25d366; }
+    
+    .card-prod-img-container { width: 100%; height: 180px; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; overflow: hidden; }
+    .card-prod-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .card-prod:hover .card-prod-img { transform: scale(1.05); }
+    
+    .card-prod-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+    .card-prod-title { font-size: 1rem; color: #fff; font-weight: bold; }
+    
+    .card-prod-precios { display: flex; flex-direction: column; gap: 4px; background: transparent; padding: 0; border: none; }
+    .card-precio-trans { font-size: 1rem; font-weight: bold; color: #25d366; }
+    .card-precio-tarj { font-size: 0.85rem; font-weight: bold; color: #ffd700; }
+    .card-span-chico { font-size: 0.68rem; color: #aaa; font-weight: normal; display: block; }
+
+    .card-prod-btn { background-color: #25d366; color: #121212; border: none; padding: 8px; border-radius: 6px; font-weight: bold; text-align: center; transition: opacity 0.2s; margin-top: 4px; font-size: 0.9rem; }
+    .card-prod-btn:hover { opacity: 0.9; }
   </style>
 </head>
 <body>
 
   <header>
     <nav class="navbar">
-      <a href="index.html" class="logo">
-        <img src="img/logo.jpg" alt="MateCico" class="logo-img">
-        <span>MateCico</span>
-      </a>
+      <div class="nav-top">
+        <a href="index.html" class="logo">
+          <img src="img/logo.jpg" alt="MateCico" class="logo-img">
+          <span>MateCico</span>
+        </a>
+      </div>
+      
+      <div class="buscador-wrapper">
+        <input type="text" id="inputBuscador" class="buscador-input" placeholder="🔍 Buscar producto..." oninput="manejarInputBusqueda(event)" onkeydown="chequearEnter(event)">
+        <button class="btn-buscar-lupa" onclick="ejecutarBusqueda()">Buscar</button>
+        <div id="sugerenciasDropdown" class="sugerencias-dropdown"></div>
+      </div>
+
       <div class="nav-links">
         <a href="index.html">INICIO</a>
-        <a href="index.html#productos">PRODUCTOS</a>
+        <a href="productos.html">PRODUCTOS</a>
         <a href="contacto.html">CONTACTO</a>
         <a href="carrito.html">🛒 CARRITO</a>
       </div>
     </nav>
   </header>
 
-  <main class="seccion-producto">
-    <div class="breadcrumb">
-      <a href="index.html">INICIO</a> . <a href="index.html#productos">PRODUCTOS</a> . <span id="breadcrumb-nombre">MATE IMPERIAL NEGRO</span>
+  <main>
+    <div class="detalle-wrapper" id="detalle-container">
+      <!-- Se rellena con JavaScript -->
     </div>
 
-    <div class="grid-detalle">
-      <div class="contenedor-imagen-detalle">
-        <img id="imagen-producto" src="" alt="Producto">
-      </div>
-
-      <div class="info-detalle">
-        <div class="subtitulo-marca">MATECICO</div>
-        <h1 id="nombre-producto">Cargando...</h1>
-        
-        <div class="precios-detalle">
-          <div id="precio-lista" class="precio-lista-detalle">$0</div>
-          <div id="precio-transferencia" class="precio-transf-detalle">💚 $0 (Transferencia)</div>
-        </div>
-
-        <p id="descripcion-producto" class="descripcion-producto">
-          Producto fabricado con materiales de alta calidad, ideal para disfrutar de tus mejores momentos materos.
-        </p>
-
-        <button id="btn-agregar-detalle" class="btn-agregar-detalle">AGREGAR AL CARRITO</button>
-      </div>
-    </div>
+    <section class="recomendados-wrapper">
+      <h2 class="seccion-titulo">Productos Recomendados</h2>
+      <div class="grid-productos" id="grid-recomendados"></div>
+    </section>
   </main>
 
-  <script src="js/productos.js"></script>
-  <script src="js/script.js"></script>
-  
+  <!-- MODAL DE IMAGEN AMPLIADA -->
+  <div id="modalImagen" class="modal-imagen" onclick="cerrarModalImagen()">
+    <img id="imgAmpliada" src="" alt="Imagen ampliada">
+  </div>
+
   <script>
-    // Lógica para cargar dinámicamente los datos del producto segun la URL ?id=X
-    document.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const id = parseInt(params.get('id')) || 1;
+    const productos = [
+      { id: 1, nombre: "Set Matero Completo Premium", precio: 55275, imagen: "img/comboset.png", descripcion: "Set matero completo de excelente calidad, ideal para regalar o disfrutar todos los días." },
+      { id: 2, nombre: "Mate Imperial Interior Calabaza", precio: 32000, imagen: "img/matecalabaza.png", descripcion: "Mate imperial con calabaza seleccionada y herrajes de alpaca cincelada. Excelente calidad y durabilidad." },
+      { id: 3, nombre: "Mate Imperial Negro", precio: 25000, imagen: "img/mateimperial.png", descripcion: "Mate imperial elegante con detalles en color negro y virola de metal." },
+      { id: 4, nombre: "Termo de Acero Inoxidable 1L", precio: 20000, imagen: "img/termo.png", descripcion: "Termo de acero inoxidable de 1 litro, mantiene la temperatura por horas." },
+      { id: 5, nombre: "Peluche MateCico", precio: 20000, imagen: "img/peluche.png", descripcion: "Divertido peluche con forma de mate, ideal para decorar o coleccionar." },
+      { id: 6, nombre: "Canasta Matera", precio: 10000, imagen: "img/canasta.png", descripcion: "Canasta matera resistente y cómoda para llevar todo tu set a todos lados." },
+      { id: 7, nombre: "Set Yerbera y Azucarera", precio: 6500, imagen: "img/yerbera.png", descripcion: "Lata yerbera y azucarera con pico vertedor, diseño exclusivo." },
+      { id: 8, nombre: "Bombilla Pico de Loro", precio: 4500, imagen: "img/bombilla.png", descripcion: "Bombilla de acero inoxidable pico de loro, fácil limpieza y gran caudal." }
+    ];
 
-      if (typeof productos !== 'undefined') {
-        const prod = productos.find(p => p.id === id) || productos[0];
-        if (prod) {
-          const precioNum = typeof prod.precio === 'number' 
-            ? prod.precio 
-            : parseFloat(prod.precio.toString().replace(/[^0-9]/g, '')) || 0;
-          const precioTransf = Math.round(precioNum * 0.9);
+    function manejarInputBusqueda(event) {
+      const texto = event.target.value.toLowerCase().trim();
+      const dropdown = document.getElementById('sugerenciasDropdown');
 
-          document.getElementById('imagen-producto').src = prod.imagen;
-          document.getElementById('nombre-producto').innerText = prod.nombre;
-          document.getElementById('breadcrumb-nombre').innerText = prod.nombre.toUpperCase();
-          document.getElementById('precio-lista').innerText = `$${precioNum.toLocaleString('es-AR')}`;
-          document.getElementById('precio-transferencia').innerText = `💚 $${precioTransf.toLocaleString('es-AR')} (Transferencia)`;
+      if (texto === '') {
+        dropdown.style.display = 'none';
+        dropdown.innerHTML = '';
+        return;
+      }
 
-          if (prod.descripcion) {
-            document.getElementById('descripcion-producto').innerText = prod.descripcion;
-          }
+      const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(texto));
 
-          document.getElementById('btn-agregar-detalle').onclick = () => {
-            agregarAlCarrito(prod.id);
-          };
-        }
+      if (filtrados.length > 0) {
+        dropdown.innerHTML = filtrados.map(p => {
+          return `
+            <div class="sugerencia-item" onclick="window.location.href='producto.html?id=${p.id}'">
+              <img src="${p.imagen}" alt="${p.nombre}" class="sugerencia-img" onerror="this.src='img/placeholder.jpg'">
+              <div>
+                <div style="font-weight: bold;">${p.nombre}</div>
+                <div style="color: #25d366; font-size: 0.8rem;">$${p.precio.toLocaleString('es-AR')}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        dropdown.style.display = 'block';
+      } else {
+        dropdown.innerHTML = `<div style="padding: 10px 15px; color: #888; font-size: 0.85rem;">No se encontraron productos</div>`;
+        dropdown.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const wrapper = document.querySelector('.buscador-wrapper');
+      if (!wrapper.contains(e.target)) {
+        document.getElementById('sugerenciasDropdown').style.display = 'none';
       }
     });
+
+    function chequearEnter(event) {
+      if (event.key === 'Enter') {
+        ejecutarBusqueda();
+      }
+    }
+
+    function ejecutarBusqueda() {
+      const texto = document.getElementById('inputBuscador').value.trim();
+      if (texto !== '') {
+        window.location.href = `productos.html?buscar=${encodeURIComponent(texto)}`;
+      }
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const idProd = parseInt(urlParams.get('id')) || 1;
+    const productoActual = productos.find(p => p.id === idProd) || productos[0];
+
+    const precioTarjeta = Math.round(productoActual.precio * 1.08);
+
+    const contenedor = document.getElementById('detalle-container');
+    contenedor.innerHTML = `
+      <div class="detalle-img-container">
+        <img src="${productoActual.imagen}" alt="${productoActual.nombre}" class="detalle-img" onclick="abrirModalImagen('${productoActual.imagen}')" onerror="this.src='img/placeholder.jpg'">
+      </div>
+      <div class="detalle-info">
+        <h1 class="detalle-titulo">${productoActual.nombre}</h1>
+        <p class="detalle-desc">${productoActual.descripcion}</p>
+        
+        <div class="detalle-precios">
+          <span class="precio-trans">$${productoActual.precio.toLocaleString('es-AR')} <span class="span-chico">Transferencia bancaria</span></span>
+          <span class="precio-tarj">$${precioTarjeta.toLocaleString('es-AR')} <span class="span-chico">Tarjeta de crédito / débito</span></span>
+        </div>
+
+        <div class="cantidad-container">
+          <span style="color: #aaa;">Cantidad:</span>
+          <div class="cantidad-controles">
+            <button class="btn-cant" onclick="cambiarCantidad(-1)">-</button>
+            <input type="text" id="inputCantidad" class="input-cant" value="1" readonly>
+            <button class="btn-cant" onclick="cambiarCantidad(1)">+</button>
+          </div>
+        </div>
+
+        <button id="btnAgregar" class="btn-agregar" onclick="agregarAlCarrito()">Agregar al Carrito</button>
+        <button class="btn-comprar" onclick="comprarAhora()">Comprar / Ir a Pagar</button>
+      </div>
+    `;
+
+    function abrirModalImagen(src) {
+      const modal = document.getElementById('modalImagen');
+      const imgAmpliada = document.getElementById('imgAmpliada');
+      imgAmpliada.src = src;
+      modal.style.display = 'flex';
+    }
+
+    function cerrarModalImagen() {
+      document.getElementById('modalImagen').style.display = 'none';
+    }
+
+    function cambiarCantidad(delta) {
+      const input = document.getElementById('inputCantidad');
+      let val = parseInt(input.value) + delta;
+      if (val < 1) val = 1;
+      input.value = val;
+    }
+
+    function agregarAlCarrito() {
+      const cantidad = parseInt(document.getElementById('inputCantidad').value);
+      let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      
+      const index = carrito.findIndex(item => item.id === productoActual.id);
+      if (index > -1) {
+        carrito[index].cantidad += cantidad;
+      } else {
+        carrito.push({
+          id: productoActual.id,
+          nombre: productoActual.nombre,
+          precio: productoActual.precio,
+          imagen: productoActual.imagen,
+          cantidad: cantidad
+        });
+      }
+      
+      localStorage.setItem('carrito', JSON.stringify(carrito));
+
+      const btn = document.getElementById('btnAgregar');
+      btn.innerText = "¡Agregado!";
+      btn.style.backgroundColor = "#1b9e4b";
+
+      setTimeout(() => {
+        btn.innerText = "Agregar al Carrito";
+        btn.style.backgroundColor = "#25d366";
+      }, 1500);
+    }
+
+    function comprarAhora() {
+      agregarAlCarrito();
+      window.location.href = 'carrito.html';
+    }
+
+    const gridRecomendados = document.getElementById('grid-recomendados');
+    const recomendados = productos.filter(p => p.id !== productoActual.id).slice(0, 4);
+
+    gridRecomendados.innerHTML = recomendados.map(p => {
+      const precioRecTarjeta = Math.round(p.precio * 1.08);
+      return `
+        <div class="card-prod" onclick="window.location.href='producto.html?id=${p.id}'">
+          <div class="card-prod-img-container">
+            <img src="${p.imagen}" alt="${p.nombre}" class="card-prod-img" onerror="this.src='img/placeholder.jpg'">
+          </div>
+          <div class="card-prod-body">
+            <h3 class="card-prod-title">${p.nombre}</h3>
+            <div class="card-prod-precios">
+              <span class="card-precio-trans">$${p.precio.toLocaleString('es-AR')} <span class="card-span-chico">Transferencia bancaria</span></span>
+              <span class="card-precio-tarj">$${precioRecTarjeta.toLocaleString('es-AR')} <span class="card-span-chico">Tarjeta de crédito / débito</span></span>
+            </div>
+            <button class="card-prod-btn">Ver Detalle</button>
+          </div>
+        </div>
+      `;
+    }).join('');
   </script>
 </body>
 </html>

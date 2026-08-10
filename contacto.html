@@ -3,101 +3,157 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contacto - MateCico</title>
-  <link rel="stylesheet" href="css/estilos.css">
-  <!-- Iconos Oficiales (Font Awesome) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>MateCico - Contacto</title>
+  <style>
+    /* RESET Y ESTILOS GLOBALES */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #121212; color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif; min-height: 100vh; }
+    
+    /* NAVBAR */
+    .navbar { display: flex; flex-direction: column; align-items: center; padding: 15px 20px; background-color: #1e1e1e; border-bottom: 1px solid #2a2a2a; gap: 15px; width: 100%; }
+    .nav-top { display: flex; width: 100%; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.4rem; color: #ffffff !important; text-decoration: none; }
+    .logo-img { width: 38px; height: 38px; object-fit: cover; border-radius: 50%; }
+    .nav-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+    .nav-links a { color: #cccccc !important; font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: #25d366 !important; }
+
+    @media (min-width: 769px) { 
+        .navbar { flex-direction: row; justify-content: space-between; padding: 15px 40px; } 
+        .nav-top { width: auto; } 
+    }
+
+    /* CONTENEDOR PRINCIPAL CONTACTO */
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    h1 { font-size: 2.5rem; margin-bottom: 10px; }
+    .subtitulo { color: #bbb; margin-bottom: 30px; }
+
+    /* LAYOUT DE DOS COLUMNAS */
+    .contacto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    @media (max-width: 768px) { .contacto-grid { grid-template-columns: 1fr; } }
+
+    /* TARJETAS DE INFO (IZQUIERDA) */
+    .info-card { background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #2a2a2a; }
+    .info-icon { font-size: 1.5rem; color: #25d366; display: flex; align-items: center; justify-content: center; min-width: 30px; }
+    .info-text h3 { font-size: 1rem; color: #fff; }
+    .info-text p, .info-text a { font-size: 0.9rem; color: #aaa; text-decoration: none; transition: color 0.2s; }
+    .info-text a:hover { color: #25d366; }
+
+    /* FORMULARIO (DERECHA) */
+    .form-box { background: #1e1e1e; padding: 25px; border-radius: 8px; border: 1px solid #2a2a2a; }
+    .form-box h2 { margin-bottom: 20px; font-size: 1.3rem; }
+    input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: #121212; border: 1px solid #333; color: white; border-radius: 4px; font-size: 0.95rem; }
+    input:focus, textarea:focus { border-color: #25d366; outline: none; }
+    button { background-color: #25d366; color: #121212; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: opacity 0.2s; }
+    button:hover { opacity: 0.9; }
+  </style>
 </head>
 <body>
 
   <header>
-    <h1>MateCico</h1>
-    <nav>
-      <a href="index.html">Inicio</a>
-      <a href="productos.html">Productos</a>
-      <a href="contacto.html" class="active">Contacto</a>
-      <a href="carrito.html">🛒 Carrito</a>
+    <nav class="navbar">
+      <div class="nav-top">
+        <a href="index.html" class="logo">
+          <img src="img/logo.jpg" alt="MateCico" class="logo-img">
+          <span>MateCico</span>
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">INICIO</a>
+        <a href="productos.html">PRODUCTOS</a>
+        <a href="contacto.html" style="color: #25d366 !important;">CONTACTO</a>
+        <a href="carrito.html">🛒 CARRITO</a>
+      </div>
     </nav>
   </header>
 
-  <main class="seccion-contacto">
-    <h2>Contacto</h2>
-    <p class="subtitulo-contacto">¿Tenés alguna duda o querés hacer un pedido personalizado? Escribinos.</p>
+  <main class="container">
+    <h1>Contacto</h1>
+    <p class="subtitulo">¿Tenés alguna duda o querés hacer un pedido personalizado? Escribinos.</p>
 
-    <div class="contenedor-contacto">
-      <!-- Información de la tienda -->
-      <div class="info-contacto">
-        <div class="tarjeta-info">
-          <span class="icono-contacto"><i class="fa-solid fa-location-dot"></i></span>
-          <div>
-            <h4>Ubicación</h4>
-            <p>Hipólito Yrigoyen 710, Cañuelas, Bs. As.</p>
+    <div class="contacto-grid">
+      <!-- LADO IZQUIERDO: INFO -->
+      <div>
+        <!-- Tarjeta Ubicación con tu enlace exacto de Google Maps -->
+        <div class="info-card">
+          <div class="info-icon">📍</div>
+          <div class="info-text">
+            <h3>Ubicación</h3>
+            <a href="https://www.google.com/maps/place/CARMBAT/@-35.0492341,-58.8064636,13z/data=!4m10!1m2!2m1!1sHipolito+Yrigoyen+710,+Canuelas,+Bs.+As.!3m6!1s0x95bd1f0016174cd3:0x24c876e4f4b48f8d!8m2!3d-35.0492341!4d-58.7652649!15sCihIaXBvbGl0byBZcmlnb3llbiA3MTAsIENhbnVlbGFzLCBCcy4gQXMuWiYiJGhpcG9saXRvIHlyaWdveWVuIDcxMCBjYW51ZWxhcyBicyBhc5IBEWNhcl9iYXR0ZXJ5X3N0b3Jl4AEA!16s%2Fg%2F11yf2_6w67?entry=ttu&g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank">Hipólito Yrigoyen 710, Cañuelas, Bs. As.</a>
+          </div>
+        </div>
+        
+        <!-- Tarjeta WhatsApp Clickeable con Logo -->
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#25d366">
+              <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0012.04 2zm5.75 14.12c-.25.7-1.42 1.34-1.95 1.42-.5.08-1.15.12-3.71-.91-3.17-1.27-5.23-4.52-5.39-4.73-.16-.21-1.27-1.69-1.27-3.22 0-1.53.8-2.28 1.08-2.59.28-.31.62-.39.83-.39.21 0 .42 0 .61.01.2 0 .47-.08.73.55.27.65.92 2.25 1 2.41.08.16.13.35.03.56-.1.21-.15.35-.3.53-.15.18-.32.4-.45.54-.15.15-.31.32-.13.62.18.3 0.8 1.32 1.72 2.14 1.18 1.05 2.18 1.38 2.49 1.53.31.15.5.13.68-.08.18-.21.78-.91.99-1.22.21-.31.42-.26.71-.15.29.11 1.83.86 2.14 1.02.31.16.52.24.6.37.08.13.08.75-.17 1.45z"/>
+            </svg>
+          </div>
+          <div class="info-text">
+            <h3>Teléfono / WhatsApp</h3>
+            <a href="https://wa.me/5491160149903?text=Hola,%20tengo%20una%20consulta" target="_blank">+54 9 11 6014-9903</a>
           </div>
         </div>
 
-        <div class="tarjeta-info">
-          <span class="icono-contacto" style="color: #25d366;"><i class="fa-brands fa-whatsapp"></i></span>
-          <div>
-            <h4>Teléfono / WhatsApp</h4>
-            <p>+54 9 11 6014-9903</p>
+        <!-- Tarjeta Instagram Clickeable con Logo -->
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#e1306c">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+          </div>
+          <div class="info-text">
+            <h3>Instagram</h3>
+            <a href="https://www.instagram.com/matecico_/" target="_blank">@matecico_</a>
           </div>
         </div>
 
-        <div class="tarjeta-info">
-          <span class="icono-contacto" style="color: #e1306c;"><i class="fa-brands fa-instagram"></i></span>
-          <div>
-            <h4>Instagram</h4>
-            <p><a href="https://instagram.com/matecico_" target="_blank" style="color: #25d366; text-decoration: none; font-weight: bold;">@matecico_</a></p>
+        <!-- Tarjeta Email Clickeable con Logo -->
+        <div class="info-card">
+          <div class="info-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#25d366">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
           </div>
-        </div>
-
-        <div class="tarjeta-info">
-          <span class="icono-contacto"><i class="fa-regular fa-envelope"></i></span>
-          <div>
-            <h4>Email</h4>
-            <p>contacto@matecico.com</p>
-          </div>
-        </div>
-
-        <div class="tarjeta-info">
-          <span class="icono-contacto"><i class="fa-regular fa-clock"></i></span>
-          <div>
-            <h4>Horarios de atención</h4>
-            <p>Lunes a Sábados: 09:00 - 19:00 hs</p>
+          <div class="info-text">
+            <h3>Email</h3>
+            <a href="mailto:matecico18@gmail.com">matecico18@gmail.com</a>
           </div>
         </div>
       </div>
 
-      <!-- Formulario de Consulta Directa por WhatsApp -->
-      <form id="form-contacto" class="form-contacto">
-        <h3>Envianos un mensaje</h3>
-        
-        <div class="grupo-campo">
-          <label for="contacto-nombre">Nombre y Apellido *</label>
-          <input type="text" id="contacto-nombre" placeholder="Tu nombre completo" required>
-        </div>
-
-        <div class="grupo-campo">
-          <label for="contacto-telefono">Teléfono / WhatsApp *</label>
-          <input type="tel" id="contacto-telefono" placeholder="Ej: 1159529503" required>
-        </div>
-
-        <div class="grupo-campo">
-          <label for="contacto-mensaje">Consulta o Mensaje *</label>
-          <textarea id="contacto-mensaje" rows="4" placeholder="Escribí tu consulta acá..." required></textarea>
-        </div>
-
-        <button type="submit" id="btn-enviar-contacto">
-          Enviar Consulta por WhatsApp <i class="fa-brands fa-whatsapp" style="margin-left: 5px; font-size: 1.1rem;"></i>
-        </button>
-      </form>
+      <!-- LADO DERECHO: FORMULARIO -->
+      <div class="form-box">
+        <h2>Envianos un mensaje</h2>
+        <form id="formContacto">
+          <input type="text" id="nombreUsuario" placeholder="Nombre y Apellido *" required>
+          <input type="text" id="telefonoUsuario" placeholder="Teléfono / WhatsApp *" required>
+          <textarea id="mensajeUsuario" rows="5" placeholder="Consulta o Mensaje *" required></textarea>
+          
+          <button type="button" onclick="enviarWhatsApp()">Enviar Mensaje</button>
+        </form>
+      </div>
     </div>
   </main>
 
-  <footer>
-    <p>© 2026 MateCico - Todos los derechos reservados.</p>
-  </footer>
+  <script>
+    function enviarWhatsApp() {
+      const nombre = document.getElementById('nombreUsuario').value;
+      const telefono = document.getElementById('telefonoUsuario').value;
+      const mensaje = document.getElementById('mensajeUsuario').value;
 
-  <script src="js/script.js"></script>
+      if(nombre === "" || mensaje === "") {
+          alert("Por favor, completa los campos obligatorios (Nombre y Mensaje).");
+          return;
+      }
+
+      const numero = "5491160149903"; 
+      const texto = `Hola, mi nombre es ${nombre}. Mi teléfono es ${telefono}. Mi consulta es: ${mensaje}`;
+      const url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+      window.open(url, '_blank');
+    }
+  </script>
+
 </body>
 </html>

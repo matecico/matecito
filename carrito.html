@@ -4,430 +4,82 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MateCico - Carrito de Compras</title>
-  
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; overflow-x: hidden; min-height: 100vh; width: 100%; }
+    a, a:visited, a:hover, a:active { text-decoration: none !important; color: inherit !important; }
 
-    body {
-      background-color: #121212;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      overflow-x: hidden;
-      min-height: 100vh;
-      width: 100%;
-    }
+    .navbar { display: flex; flex-direction: column; align-items: center; padding: 15px 10px; background-color: #1e1e1e; border-bottom: 1px solid #2a2a2a; gap: 12px; width: 100%; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.2rem; }
+    .logo-img { width: 38px !important; height: 38px !important; object-fit: cover !important; border-radius: 50%; }
+    .nav-links { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+    .nav-links a { color: #cccccc !important; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.3px; }
+    .nav-links a:hover { color: #25d366 !important; }
 
-    a, a:visited, a:hover, a:active {
-      text-decoration: none !important;
-      color: inherit !important;
-    }
-
-    /* NAVBAR RESPONSIVE */
-    .navbar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 15px 10px;
-      background-color: #1e1e1e;
-      border-bottom: 1px solid #2a2a2a;
-      gap: 12px;
-      width: 100%;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
-
-    .logo-img {
-      width: 38px !important;
-      height: 38px !important;
-      object-fit: cover !important;
-      border-radius: 50%;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .nav-links a {
-      color: #cccccc !important;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-
-    .nav-links a:hover {
-      color: #25d366 !important;
-    }
-
-    /* ESTILOS PARA COMPUTADORAS (Escritorio) */
     @media (min-width: 769px) {
-      .navbar {
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 15px 30px;
-      }
-      .nav-links {
-        gap: 25px;
-      }
-      .nav-links a {
-        font-size: 0.9rem;
-      }
+      .navbar { flex-direction: row; justify-content: space-between; padding: 15px 30px; }
+      .nav-links { gap: 25px; }
+      .nav-links a { font-size: 0.9rem; }
     }
 
-    /* CONTENEDOR PRINCIPAL */
-    .seccion-carrito {
-      max-width: 1100px;
-      margin: 40px auto;
-      padding: 0 20px;
-    }
+    .seccion-carrito { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    .titulo-pagina { font-size: 2rem; font-weight: bold; color: #ffffff; margin-bottom: 30px; }
+    .grid-carrito { display: grid; grid-template-columns: 1fr 380px; gap: 30px; align-items: start; }
+    @media (max-width: 850px) { .grid-carrito { grid-template-columns: 1fr; } }
 
-    .titulo-pagina {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #ffffff;
-      margin-bottom: 30px;
-    }
+    .columna-izquierda { display: flex; flex-direction: column; gap: 25px; }
+    #contenedor-carrito { display: flex; flex-direction: column; gap: 15px; }
+    .item-carrito { background-color: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; padding: 18px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .selector-cantidad { display: flex; align-items: center; background-color: #121212; border: 1px solid #333333; border-radius: 4px; padding: 4px 10px; gap: 12px; font-weight: bold; color: #ffffff; font-size: 0.9rem; }
+    .selector-cantidad button { background: none; border: none; color: #ffffff; cursor: pointer; font-size: 1rem; padding: 0 4px; }
+    .btn-eliminar-item { background: none; border: none; color: #aaaaaa; cursor: pointer; font-size: 1.1rem; padding: 5px; }
+    .btn-eliminar-item:hover { color: #ff4d4d; }
 
-    /* GRID 2 COLUMNAS */
-    .grid-carrito {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 30px;
-      align-items: start;
-    }
+    .card-datos-envio { background-color: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; padding: 22px; display: flex; flex-direction: column; gap: 15px; }
+    .card-datos-envio h3 { font-size: 1.15rem; font-weight: bold; color: #ffffff; margin-bottom: 5px; }
+    .selector-entrega-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+    @media (max-width: 600px) { .selector-entrega-container { grid-template-columns: 1fr; } }
 
-    @media (max-width: 850px) {
-      .grid-carrito {
-        grid-template-columns: 1fr;
-      }
-    }
+    .tarjeta-opcion { cursor: pointer; border: 2px solid #333333; border-radius: 8px; padding: 15px; background-color: #121212; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+    .tarjeta-opcion input { display: none; }
+    .tarjeta-opcion.seleccionada { border-color: #25d366; background-color: rgba(37, 211, 102, 0.05); }
+    
+    .tarjeta-opcion .icono { font-size: 1.5rem; }
+    .tarjeta-opcion .titulo { font-weight: bold; font-size: 0.9rem; color: #ffffff; }
+    .tarjeta-opcion .subtitulo { font-size: 0.75rem; color: #aaaaaa; }
 
-    /* COLUMNA IZQUIERDA */
-    .columna-izquierda {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-    }
+    .grid-formulario { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .grid-formulario { grid-template-columns: 1fr; } }
+    .campo-form { display: flex; flex-direction: column; gap: 6px; }
+    .campo-form.full-width { grid-column: 1 / -1; }
+    .campo-form label { font-size: 0.8rem; color: #aaaaaa; font-weight: bold; }
+    .campo-form input, .campo-form textarea, .campo-form select { background-color: #121212; border: 1px solid #333333; color: #ffffff; padding: 10px; border-radius: 5px; font-size: 0.9rem; outline: none; font-family: inherit; width: 100%; }
+    .campo-form input:focus, .campo-form textarea:focus, .campo-form select:focus { border-color: #25d366; }
 
-    #contenedor-carrito {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+    .resumen-card { background-color: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+    .resumen-card h3 { font-size: 1.15rem; font-weight: bold; color: #ffffff; }
+    .divisor-resumen { border: 0; border-top: 1px solid #2a2a2a; margin: -2px 0; }
+    .caja-envio { background-color: #121212; border: 1px solid #2a2a2a; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .caja-envio label { font-size: 0.85rem; color: #aaaaaa; font-weight: bold; }
+    .grupo-input-cp { display: flex; gap: 8px; }
+    .grupo-input-cp input { flex: 1; background-color: #1e1e1e; border: 1px solid #333333; color: #ffffff; padding: 8px 12px; border-radius: 4px; font-size: 0.9rem; outline: none; }
+    .grupo-input-cp button { background-color: #333333; color: #ffffff; border: none; padding: 8px 14px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; cursor: pointer; }
+    .grupo-input-cp button:hover { background-color: #444444; }
+    .resultado-envio { font-size: 0.85rem; color: #25d366; font-weight: bold; min-height: 18px; }
 
-    .item-carrito {
-      background-color: #1e1e1e;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-    }
+    .linea-resumen { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+    .linea-resumen .etiqueta { color: #ffffff; }
+    .linea-resumen .monto-lista { color: #ffffff; font-weight: bold; font-size: 1.05rem; }
+    .linea-resumen .etiqueta-descuento { color: #e5c158; font-weight: bold; font-size: 0.85rem; }
+    .linea-resumen .monto-descuento { color: #e5c158; font-weight: bold; font-size: 1.1rem; }
 
-    .info-producto-carrito {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      flex-grow: 1;
-    }
-
-    .img-item-carrito {
-      width: 60px !important;
-      height: 60px !important;
-      object-fit: cover !important;
-      border-radius: 6px;
-    }
-
-    .detalles-item h4 {
-      font-size: 1rem;
-      font-weight: bold;
-      color: #ffffff;
-      margin-bottom: 4px;
-    }
-
-    .detalles-item span {
-      color: #aaaaaa;
-      font-size: 0.85rem;
-    }
-
-    .selector-cantidad {
-      display: flex;
-      align-items: center;
-      background-color: #121212;
-      border: 1px solid #333333;
-      border-radius: 4px;
-      padding: 4px 10px;
-      gap: 12px;
-      font-weight: bold;
-      color: #ffffff;
-      font-size: 0.9rem;
-    }
-
-    .selector-cantidad button {
-      background: none;
-      border: none;
-      color: #ffffff;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0 4px;
-    }
-
-    .precio-item-carrito {
-      font-size: 1.15rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    .btn-eliminar-item {
-      background: none;
-      border: none;
-      color: #aaaaaa;
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 5px;
-    }
-
-    .btn-eliminar-item:hover {
-      color: #ff4d4d;
-    }
-
-    /* FORMULARIO DATOS DE ENVÍO */
-    .card-datos-envio {
-      background-color: #1e1e1e;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .card-datos-envio h3 {
-      font-size: 1.15rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    .grid-formulario {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 600px) {
-      .grid-formulario {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .campo-form {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .campo-form.full-width {
-      grid-column: 1 / -1;
-    }
-
-    .campo-form label {
-      font-size: 0.8rem;
-      color: #aaaaaa;
-      font-weight: bold;
-    }
-
-    .campo-form input, .campo-form textarea {
-      background-color: #121212;
-      border: 1px solid #333333;
-      color: #ffffff;
-      padding: 10px;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      outline: none;
-      font-family: inherit;
-    }
-
-    .campo-form input:focus, .campo-form textarea:focus {
-      border-color: #25d366;
-    }
-
-    /* COLUMNA DERECHA: RESUMEN */
-    .resumen-card {
-      background-color: #1e1e1e;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .resumen-card h3 {
-      font-size: 1.15rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    .divisor-resumen {
-      border: 0;
-      border-top: 1px solid #2a2a2a;
-      margin: -2px 0;
-    }
-
-    .caja-envio {
-      background-color: #121212;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .caja-envio label {
-      font-size: 0.85rem;
-      color: #aaaaaa;
-      font-weight: bold;
-    }
-
-    .grupo-input-cp {
-      display: flex;
-      gap: 8px;
-    }
-
-    .grupo-input-cp input {
-      flex: 1;
-      background-color: #1e1e1e;
-      border: 1px solid #333333;
-      color: #ffffff;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      outline: none;
-    }
-
-    .grupo-input-cp button {
-      background-color: #333333;
-      color: #ffffff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 0.85rem;
-      cursor: pointer;
-    }
-
-    .grupo-input-cp button:hover {
-      background-color: #444444;
-    }
-
-    .resultado-envio {
-      font-size: 0.85rem;
-      color: #25d366;
-      font-weight: bold;
-      min-height: 18px;
-    }
-
-    .linea-resumen {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.95rem;
-    }
-
-    .linea-resumen .etiqueta {
-      color: #ffffff;
-    }
-
-    .linea-resumen .monto-lista {
-      color: #ffffff;
-      font-weight: bold;
-      font-size: 1.05rem;
-    }
-
-    .linea-resumen .etiqueta-descuento {
-      color: #e5c158;
-      font-weight: bold;
-    }
-
-    .linea-resumen .monto-descuento {
-      color: #e5c158;
-      font-weight: bold;
-      font-size: 1.1rem;
-    }
-
-    .acciones-resumen {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 5px;
-    }
-
-    .btn-vaciar-carrito {
-      width: 100%;
-      background: transparent;
-      border: 1px solid #ff4d4d;
-      color: #ff4d4d;
-      padding: 10px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-
-    .btn-vaciar-carrito:hover {
-      background-color: rgba(255, 77, 77, 0.1);
-    }
-
-    .btn-pagar-ahora {
-      width: 100%;
-      background-color: #007bff;
-      color: #ffffff;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-pagar-ahora:hover {
-      background-color: #0056b3;
-    }
-
-    .btn-whatsapp-compra {
-      width: 100%;
-      background-color: #25d366;
-      color: #000000;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 0.85rem;
-      cursor: pointer;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-whatsapp-compra:hover {
-      background-color: #1ebd56;
-    }
+    .acciones-resumen { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
+    .btn-vaciar-carrito { width: 100%; background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+    .btn-vaciar-carrito:hover { background-color: rgba(255, 77, 77, 0.1); }
+    .btn-pagar-ahora { width: 100%; background-color: #007bff; color: #ffffff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; text-align: center; }
+    .btn-pagar-ahora:hover { background-color: #0056b3; }
+    .btn-whatsapp-compra { width: 100%; background-color: #25d366; color: #000000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; text-align: center; line-height: 1.3; }
+    .btn-whatsapp-compra:hover { background-color: #1ebd56; }
   </style>
 </head>
 <body>
@@ -450,65 +102,80 @@
   <main class="seccion-carrito">
     <h1 class="titulo-pagina">Tu Carrito de Compras</h1>
 
-    <!-- FORMULARIO DE COMPRA -->
-    <form id="form-carrito" class="grid-carrito">
-      
+    <div class="grid-carrito">
       <div class="columna-izquierda">
-        <!-- PRODUCTOS -->
-        <div id="contenedor-carrito">
-          <!-- Renderizado por JS -->
-        </div>
+        <div id="contenedor-carrito"></div>
 
-        <!-- FORMULARIO DE DATOS DE ENVÍO -->
         <div class="card-datos-envio">
-          <h3>📦 Datos de Entrega y Contacto</h3>
-          
+          <h3>📦 Datos de Entrega</h3>
+          <div class="campo-form full-width">
+            <label>Selecciona cómo prefieres recibirlo:</label>
+            <div class="selector-entrega-container">
+              <!-- Se quitó el onclick inline para evitar bucles de eventos -->
+              <label class="tarjeta-opcion">
+                <input type="radio" name="metodo-entrega" value="envio" checked>
+                <span class="icono">🚚</span>
+                <span class="titulo">Envío a Domicilio</span>
+                <span class="subtitulo">Recibilo en tu casa</span>
+              </label>
+              <label class="tarjeta-opcion">
+                <input type="radio" name="metodo-entrega" value="retiro">
+                <span class="icono">🏪</span>
+                <span class="titulo">Retiro en Tienda</span>
+                <span class="subtitulo">H. Yrigoyen 710</span>
+              </label>
+            </div>
+          </div>
+
           <div class="grid-formulario">
             <div class="campo-form">
               <label for="cliente-nombre">Nombre y Apellido *</label>
               <input type="text" id="cliente-nombre" placeholder="Juan Pérez" required>
             </div>
-
             <div class="campo-form">
               <label for="cliente-telefono">Teléfono / WhatsApp *</label>
               <input type="text" id="cliente-telefono" placeholder="11 1234 5678" required>
             </div>
-
-            <div class="campo-form">
+            <div class="campo-form full-width" id="contenedor-direccion">
               <label for="cliente-direccion">Dirección y Número *</label>
-              <input type="text" id="cliente-direccion" placeholder="Av. Rivadavia 1234, Dpto 2B" required>
+              <input type="text" id="cliente-direccion" placeholder="Av. Rivadavia 1234, Dpto 2B">
             </div>
-
-            <div class="campo-form">
-              <label for="cliente-localidad">Localidad / Provincia *</label>
-              <input type="text" id="cliente-localidad" placeholder="CABA, Buenos Aires" required>
+            <div class="campo-form full-width" id="contenedor-localidad">
+              <label for="input-localidad">Localidad / Provincia *</label>
+              <input type="text" id="input-localidad" placeholder="CABA, Buenos Aires">
             </div>
-
             <div class="campo-form full-width">
               <label for="cliente-notas">Aclaraciones u Observaciones (Opcional)</label>
-              <textarea id="cliente-notas" rows="2" placeholder="Ej: Timbre B, dejar en portería..."></textarea>
+              <textarea id="cliente-notas" rows="2" placeholder="Ej: Timbre B..."></textarea>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- RESUMEN DERECHA -->
       <div class="resumen-card">
         <h3>Resumen del Pedido</h3>
         <hr class="divisor-resumen">
 
-        <div class="caja-envio">
+        <div class="caja-envio" id="caja-envio-resumen">
           <label for="input-cp">Calcular Envío (Código Postal) *</label>
           <div class="grupo-input-cp">
-            <input type="text" id="input-cp" placeholder="Ej: 1425" maxlength="5" required>
-            <button type="button" id="btn-calcular-cp">Calcular</button>
+            <input type="text" id="input-cp" placeholder="Ej: 1425" autocomplete="off">
+            <button type="button" id="btn-calcular-envio">Calcular</button>
           </div>
-          <div id="mensaje-envio" class="resultado-envio"></div>
+        </div>
+
+        <div class="caja-envio">
+          <label for="input-cupon">Código de Descuento</label>
+          <div class="grupo-input-cp">
+            <input type="text" id="input-cupon" placeholder="" autocomplete="off">
+            <button type="button" id="btn-aplicar-cupon">Aplicar</button>
+          </div>
+          <div id="mensaje-cupon" class="resultado-envio"></div>
         </div>
 
         <div class="linea-resumen">
           <span class="etiqueta">Envío:</span>
-          <span id="costo-envio-texto" class="monto-lista">$0</span>
+          <span id="costo-envio" class="monto-lista">$0</span>
         </div>
 
         <hr class="divisor-resumen">
@@ -525,14 +192,242 @@
 
         <div class="acciones-resumen">
           <button type="button" id="btn-vaciar" class="btn-vaciar-carrito">Vaciar Carrito</button>
-          <button type="submit" id="btn-pagar" class="btn-pagar-ahora">PAGAR</button>
-          <button type="button" id="btn-finalizar" class="btn-whatsapp-compra">FINALIZAR COMPRA POR WHATSAPP 📲</button>
+          <button type="button" id="btn-pagar" class="btn-pagar-ahora">PAGAR (Mercado Pago)</button>
+          <button type="button" id="btn-finalizar" class="btn-whatsapp-compra">TERMINAR PAGO POR WHATSAPP (TRANSFERENCIA) 📲</button>
         </div>
       </div>
-
-    </form>
+    </div>
   </main>
 
-  <script src="js/productos.js"></script>
-  <script src="js/script.js?v=100"></script>
+  <script>
+    let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    let costoEnvioActual = 0;
+    let descuentoCupon = 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderizarCarrito();
+        
+        // Escuchador seguro de cambios para los métodos de entrega (evita bucles)
+        document.querySelectorAll('input[name="metodo-entrega"]').forEach(input => {
+            input.addEventListener('change', toggleMetodoEntrega);
+        });
+
+        toggleMetodoEntrega(); // Inicializar estado visual al cargar
+
+        document.getElementById('btn-calcular-envio').addEventListener('click', calcularEnvioCP);
+        document.getElementById('btn-aplicar-cupon').addEventListener('click', aplicarCupon);
+        document.getElementById('btn-vaciar').addEventListener('click', () => {
+            localStorage.removeItem('carrito');
+            carrito = [];
+            renderizarCarrito();
+        });
+        document.getElementById('btn-finalizar').addEventListener('click', finalizarWhatsApp);
+        document.getElementById('btn-pagar').addEventListener('click', procesarPagoMercadoPago);
+    });
+
+    async function procesarPagoMercadoPago() {
+        if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
+        if (!validarFormularioDatos()) return;
+
+        const btnPagar = document.getElementById('btn-pagar');
+        const textoOriginal = "PAGAR (Mercado Pago)";
+        
+        btnPagar.innerText = "Generando pago...";
+        btnPagar.disabled = true;
+
+        try {
+            const response = await fetch('https://matecito.onrender.com/crear-preferencia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: carrito })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.init_point) {
+                window.location.href = data.init_point;
+            } else {
+                throw new Error(data.message || 'Error al generar la preferencia');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error de conexión. Por favor intentá de nuevo.');
+        } finally {
+            btnPagar.innerText = textoOriginal;
+            btnPagar.disabled = false;
+        }
+    }
+
+    function validarFormularioDatos() {
+        const metodoChecked = document.querySelector('input[name="metodo-entrega"]:checked');
+        if (!metodoChecked) return false;
+        const metodo = metodoChecked.value;
+        const nombre = document.getElementById('cliente-nombre').value.trim();
+        const telefono = document.getElementById('cliente-telefono').value.trim();
+        
+        if (!nombre || !telefono) { alert('Por favor, completa Nombre y Teléfono.'); return false; }
+        if (metodo === 'envio') {
+            const direccion = document.getElementById('cliente-direccion').value.trim();
+            const localidad = document.getElementById('input-localidad').value.trim();
+            if (!direccion || !localidad) { alert('Por favor, completa dirección y localidad.'); return false; }
+        }
+        return true;
+    }
+
+    function toggleMetodoEntrega() {
+        const tarjetas = document.querySelectorAll('.tarjeta-opcion');
+        tarjetas.forEach(tarjeta => {
+            const input = tarjeta.querySelector('input');
+            if (input && input.checked) {
+                tarjeta.classList.add('seleccionada');
+            } else {
+                tarjeta.classList.remove('seleccionada');
+            }
+        });
+
+        const metodoChecked = document.querySelector('input[name="metodo-entrega"]:checked');
+        if (!metodoChecked) return;
+        const metodo = metodoChecked.value;
+
+        const contenedorDir = document.getElementById('contenedor-direccion');
+        const contenedorLocalidad = document.getElementById('contenedor-localidad');
+        const cajaResumenEnvio = document.getElementById('caja-envio-resumen');
+
+        if (metodo === 'retiro') {
+            if (contenedorDir) contenedorDir.style.display = 'none';
+            if (contenedorLocalidad) contenedorLocalidad.style.display = 'none';
+            if (cajaResumenEnvio) cajaResumenEnvio.style.display = 'none';
+            costoEnvioActual = 0;
+            const costoEnvioEl = document.getElementById('costo-envio');
+            if (costoEnvioEl) costoEnvioEl.innerText = '$0';
+        } else {
+            if (contenedorDir) contenedorDir.style.display = 'flex';
+            if (contenedorLocalidad) contenedorLocalidad.style.display = 'flex';
+            if (cajaResumenEnvio) cajaResumenEnvio.style.display = 'flex';
+            calcularEnvioCP();
+        }
+        actualizarTotales();
+    }
+
+    function renderizarCarrito() {
+        const contenedor = document.getElementById('contenedor-carrito');
+        if (!contenedor) return;
+
+        if (carrito.length === 0) {
+            contenedor.innerHTML = '<p style="color: #aaa; padding: 15px;">Tu carrito está vacío.</p>';
+            actualizarTotales();
+            return;
+        }
+
+        contenedor.innerHTML = '';
+        carrito.forEach((item, index) => {
+            contenedor.innerHTML += `
+                <div class="item-carrito">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img src="${item.imagen || 'img/placeholder.jpg'}" alt="${item.nombre}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
+                        <div>
+                            <h4 style="color: #fff; margin-bottom: 5px;">${item.nombre}</h4>
+                            <span style="color: #aaa;">$${item.precio}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="selector-cantidad">
+                            <button type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
+                            <span>${item.cantidad}</span>
+                            <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+                        </div>
+                        <span style="font-weight: bold; color: #fff;">$${item.precio * item.cantidad}</span>
+                        <button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">🗑️</button>
+                    </div>
+                </div>`;
+        });
+        actualizarTotales();
+    }
+
+    function cambiarCantidad(index, delta) {
+        carrito[index].cantidad += delta;
+        if (carrito[index].cantidad <= 0) carrito.splice(index, 1);
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        renderizarCarrito();
+    }
+
+    function eliminarItem(index) {
+        carrito.splice(index, 1);
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        renderizarCarrito();
+    }
+
+    function calcularEnvioCP() {
+        const metodoChecked = document.querySelector('input[name="metodo-entrega"]:checked');
+        if (!metodoChecked || metodoChecked.value === 'retiro') { costoEnvioActual = 0; return; }
+        const cpInput = document.getElementById('input-cp');
+        if (!cpInput) return;
+        const cp = cpInput.value.trim();
+        
+        if (cp.startsWith('18') || cp.startsWith('14') || cp.startsWith('1')) { costoEnvioActual = 3500; } 
+        else if (cp !== '') { costoEnvioActual = 6500; } 
+        else { costoEnvioActual = 0; }
+        
+        const costoEnvioEl = document.getElementById('costo-envio');
+        if (costoEnvioEl) costoEnvioEl.innerText = '$' + costoEnvioActual;
+        actualizarTotales();
+    }
+
+    function aplicarCupon() {
+        const inputCupon = document.getElementById('input-cupon');
+        const mensajeCupon = document.getElementById('mensaje-cupon');
+        if (!inputCupon || !mensajeCupon) return;
+        
+        const codigo = inputCupon.value.trim().toUpperCase();
+        if (codigo === 'MATE95') {
+            descuentoCupon = 0.99;
+            mensajeCupon.style.color = '#25d366';
+            mensajeCupon.innerText = '¡Cupón MATE95 aplicado (99% OFF)!';
+        } else {
+            descuentoCupon = 0;
+            mensajeCupon.style.color = '#ff4d4d';
+            mensajeCupon.innerText = 'Código inválido';
+        }
+        actualizarTotales();
+    }
+
+    function actualizarTotales() {
+        const subtotal = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
+        let totalLista, totalTransferencia;
+        if (descuentoCupon === 0.99) {
+            const subtotalConDescuento = Math.round(subtotal * 0.01);
+            totalLista = subtotalConDescuento + costoEnvioActual;
+            totalTransferencia = totalLista;
+        } else {
+            totalLista = subtotal + costoEnvioActual;
+            totalTransferencia = Math.round(totalLista * (1 - (0.10 + descuentoCupon)));
+        }
+        
+        const totalListaEl = document.getElementById('total-lista');
+        const totalTransEl = document.getElementById('total-transferencia');
+        if (totalListaEl) totalListaEl.innerText = '$' + totalLista;
+        if (totalTransEl) totalTransEl.innerText = '$' + totalTransferencia;
+    }
+
+    function finalizarWhatsApp(e) {
+        if (e) e.preventDefault();
+        if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
+        if (!validarFormularioDatos()) return;
+
+        const metodo = document.querySelector('input[name="metodo-entrega"]:checked').value;
+        const nombre = document.getElementById('cliente-nombre').value.trim();
+        const telefono = document.getElementById('cliente-telefono').value.trim();
+        
+        let detalleEntregaStr = metodo === 'envio' 
+            ? `%0A*Método:* Envío%0A*Dirección:* ${document.getElementById('cliente-direccion').value.trim()}, ${document.getElementById('input-localidad').value.trim()}`
+            : `%0A*Método:* Retiro en tienda (Hipólito Yrigoyen 710, Cañuelas)`;
+
+        const totalTransf = document.getElementById('total-transferencia').innerText;
+        let detalle = carrito.map(item => `- ${item.cantidad}x ${item.nombre} ($${item.precio * item.cantidad})`).join('%0A');
+        
+        let texto = `Hola! Quiero finalizar mi compra:%0A${detalle}%0A${detalleEntregaStr}%0A*Total Transferencia:* ${totalTransf}%0A*Nombre:* ${nombre}%0A*Teléfono:* ${telefono}`;
+        window.open(`https://wa.me/5491160149903?text=${texto}`, '_blank');
+    }
+  </script>
 </body>
+</html>

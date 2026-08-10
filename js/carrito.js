@@ -1,9 +1,50 @@
 // 1. ESTADO GLOBAL
 let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
 let costoEnvio = 0;
+let porcentajeDescuento = 0; // Variable para el cupón
 
 function guardarCarrito() {
   localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+// FUNCIÓN AUXILIAR PARA MENSAJES VISUALES (Reemplaza los alert)
+function mostrarMensaje(texto, tipo = 'error') {
+  let contenedor = document.getElementById('mensaje-global-alerta');
+  if (!contenedor) {
+    // Si no existe el contenedor en el HTML, lo creamos dinámicamente arriba del botón pagar
+    contenedor = document.createElement('div');
+    contenedor.id = 'mensaje-global-alerta';
+    contenedor.style.padding = '10px';
+    contenedor.style.margin = '10px 0';
+    contenedor.style.borderRadius = '5px';
+    contenedor.style.fontSize = '0.9rem';
+    contenedor.style.fontWeight = 'bold';
+    contenedor.style.textAlign = 'center';
+    
+    const btnPagar = document.getElementById('btn-pagar') || document.querySelector('button');
+    if (btnPagar && btnPagar.parentNode) {
+      btnPagar.parentNode.insertBefore(contenedor, btnPagar);
+    } else {
+      document.body.appendChild(contenedor);
+    }
+  }
+
+  contenedor.style.color = '#ffffff';
+  contenedor.style.backgroundColor = tipo === 'exito' ? 'rgba(37, 211, 102, 0.2)' : 'rgba(255, 77, 77, 0.2)';
+  contenedor.style.border = `1px solid ${tipo === 'exito' ? '#25d366' : '#ff4d4d'}`;
+  contenedor.innerText = texto;
+
+  // Hacer scroll suave hacia el mensaje para que el usuario lo vea
+  contenedor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function limpiarMensaje() {
+  const contenedor = document.getElementById('mensaje-global-alerta');
+  if (contenedor) {
+    contenedor.innerText = '';
+    contenedor.style.backgroundColor = 'transparent';
+    contenedor.style.border = 'none';
+  }
 }
 
 // 2. MOSTRAR PRODUCTOS EN EL CARRITO
@@ -54,7 +95,8 @@ function cargarCarrito() {
     `;
   });
 
-  actualizarTotalesPantalla(subtotalProductos);
+  let subtotalConDescuento = subtotalProductos * (1 - porcentajeDescuento);
+  actualizarTotalesPantalla(subtotalConDescuento);
 }
 
 function cambiarCantidad(index, cambio) {
@@ -80,14 +122,40 @@ function eliminarProducto(index) {
 window.cambiarCantidad = cambiarCantidad;
 window.eliminarProducto = eliminarProducto;
 
+// LÓGICA DE CUPÓN
+function aplicarCupon() {
+  limpiarMensaje();
+  const inputCupon = document.getElementById('input-cupon');
+  const mensajeCupon = document.getElementById('mensaje-cupon');
+  const codigo = inputCupon ? inputCupon.value.trim().toUpperCase() : '';
+
+  if (codigo === "MESSETEAMO") {
+    porcentajeDescuento = 1; 
+    costoEnvio = 0;
+    if (mensajeCupon) {
+      mensajeCupon.style.color = '#25d366';
+      mensajeCupon.innerText = '🎁 ¡Cupón aplicado! Compra totalmente GRATIS.';
+    }
+  } else {
+    porcentajeDescuento = 0;
+    if (mensajeCupon) {
+      mensajeCupon.style.color = '#ff4d4d';
+      mensajeCupon.innerText = '❌ Cupón no válido.';
+    }
+  }
+  cargarCarrito();
+}
+window.aplicarCupon = aplicarCupon;
+
 // 3. CÁLCULO DE ENVÍO
 function calcularCostoEnvio() {
+  limpiarMensaje();
   const inputCP = document.querySelector('input[placeholder*="Postal" i], input[placeholder*="CP" i], #input-cp, #cp');
   const mensajeEnvio = document.getElementById('mensaje-envio');
   const cpTexto = inputCP ? inputCP.value.trim() : '';
 
-  if (!cpTexto) {
-    alert('⚠️ Por favor ingresá un Código Postal en la casilla correspondiente.');
+  if (!cpTexto && porcentajeDescuento !== 1) {
+    mostrarMensaje('⚠️ Por favor ingresá un Código Postal en la casilla correspondiente.', 'error');
     if (mensajeEnvio) {
       mensajeEnvio.style.color = '#ff4d4d';
       mensajeEnvio.innerText = 'Ingresá un código postal válido';
@@ -97,36 +165,29 @@ function calcularCostoEnvio() {
     return;
   }
 
-  // Validación de código postal con envío gratis (150722)
-  if (cpTexto === "150722") {
+  if (porcentajeDescuento === 1 || cpTexto === "150722") {
     costoEnvio = 0;
   } else {
-    costoEnvio = 4500;
+    costoEnvio = 0;
   }
 
   if (mensajeEnvio) {
     mensajeEnvio.style.color = '#25d366';
     if (costoEnvio === 0) {
-      mensajeEnvio.innerText = `🎉 ¡Envío GRATIS aplicado para el CP ${cpTexto}!`;
+      mensajeEnvio.innerText = `🎉 ¡Envío GRATIS aplicado!`;
     } else {
       mensajeEnvio.innerText = `Envío a CP ${cpTexto}: $${costoEnvio.toLocaleString('es-AR')}`;
     }
   }
 
   cargarCarrito();
-
-  if (costoEnvio === 0) {
-    alert(`🎉 ¡Felicidades! Tenés envío gratis para el CP ${cpTexto}`);
-  } else {
-    alert(`✅ Envío calculado con éxito para CP ${cpTexto}: $${costoEnvio.toLocaleString('es-AR')}`);
-  }
 }
 
-function actualizarTotalesPantalla(subtotal) {
-  const totalConEnvio = subtotal + costoEnvio;
+function actualizarTotalesPantalla(subtotalConDescuento) {
+  const totalConEnvio = subtotalConDescuento + costoEnvio;
 
   const elemCostoEnvio = document.getElementById('costo-envio-texto');
-  if (elemCostoEnvio) elemCostoEnvio.innerText = `$${costoEnvio.toLocaleString('es-AR')}`;
+  if (elemCostoEnvio) elemCostoEnvio.innerText = (costoEnvio === 0) ? 'GRATIS' : `$${costoEnvio.toLocaleString('es-AR')}`;
 
   const elemTotal = document.getElementById('total-precio') || document.getElementById('total-lista');
   if (elemTotal) elemTotal.innerText = `$${totalConEnvio.toLocaleString('es-AR')}`;
@@ -145,8 +206,18 @@ async function procesarPagoStrict(e) {
     e.stopPropagation();
   }
 
+  limpiarMensaje();
+
   if (!carrito || carrito.length === 0) {
-    alert('⚠️ El carrito está vacío. Agregá un producto antes de pagar.');
+    mostrarMensaje('⚠️ El carrito está vacío. Agregá un producto antes de pagar.', 'error');
+    return false;
+  }
+
+  if (porcentajeDescuento === 1) {
+    mostrarMensaje('🎉 ¡Tu pedido ha sido procesado exitosamente como regalo!', 'exito');
+    carrito = [];
+    guardarCarrito();
+    cargarCarrito();
     return false;
   }
 
@@ -161,25 +232,25 @@ async function procesarPagoStrict(e) {
   const cp = inputCP ? inputCP.value.trim() : '';
 
   if (!nombre) {
-    alert('❌ Faltan datos: Por favor, ingresá tu Nombre y Apellido.');
+    mostrarMensaje('❌ Faltan datos: Por favor, ingresá tu Nombre y Apellido.', 'error');
     if (inputNombre) inputNombre.focus();
     return false;
   }
 
   if (!telefono) {
-    alert('❌ Faltan datos: Por favor, ingresá tu Teléfono de contacto.');
+    mostrarMensaje('❌ Faltan datos: Por favor, ingresá tu Teléfono de contacto.', 'error');
     if (inputTelefono) inputTelefono.focus();
     return false;
   }
 
   if (!direccion) {
-    alert('❌ Faltan datos: Por favor, ingresá tu Dirección de entrega.');
+    mostrarMensaje('❌ Faltan datos: Por favor, ingresá tu Dirección de entrega.', 'error');
     if (inputDireccion) inputDireccion.focus();
     return false;
   }
 
-  if (!cp || costoEnvio === 0 && cp !== "15072") {
-    alert('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.');
+  if (!cp || (costoEnvio === 0 && cp !== "150722")) {
+    mostrarMensaje('❌ Envío no calculado: Por favor ingresá tu Código Postal y hacé clic en "Calcular" antes de pagar.', 'error');
     if (inputCP) inputCP.focus();
     return false;
   }
@@ -231,11 +302,11 @@ async function procesarPagoStrict(e) {
     if (data.init_point) {
       window.location.href = data.init_point;
     } else {
-      alert('Error al generar la preferencia de pago.');
+      mostrarMensaje('Error al generar la preferencia de pago.', 'error');
     }
   } catch (error) {
     console.error('Error al pagar:', error);
-    alert('Ocurrió un error al conectar con el servidor.');
+    mostrarMensaje('Ocurrió un error al conectar con el servidor.', 'error');
   } finally {
     if (btnPagar) {
       btnPagar.innerText = 'PAGAR';
@@ -249,6 +320,14 @@ window.pagar = procesarPagoStrict;
 // 5. EVENTOS E INICIALIZACIÓN
 document.addEventListener('DOMContentLoaded', () => {
   cargarCarrito();
+
+  const btnCupon = document.getElementById('btn-aplicar-cupon');
+  if (btnCupon) {
+    btnCupon.addEventListener('click', (e) => {
+      e.preventDefault();
+      aplicarCupon();
+    });
+  }
 
   const formularios = document.querySelectorAll('form');
   formularios.forEach(form => {
