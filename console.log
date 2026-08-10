@@ -1,0 +1,10 @@
+app.post('/api/crear-preferencia', async (req, res) => {
+    try {
+        const { items, cliente, cupon } = req.body;
+        
+        // --- CHIVATO PARA DEPURAR ---
+        console.log("----------------------------------------");
+        console.log("CUPÓN RECIBIDO EN EL SERVIDOR:", cupon);
+        console.log("ITEMS RECIBIDOS:", items);
+        console.log("----------------------------------------");
+    

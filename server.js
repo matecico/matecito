@@ -52,21 +52,23 @@ async function enviarNotificacionTelegram(mensaje) {
 // 3. RUTA PARA CREAR PREFERENCIA Y NOTIFICAR
 app.post('/api/crear-preferencia', async (req, res) => {
     try {
-        const { items, cliente, cupon } = req.body;
+        const { items, cliente, cupon, envio } = req.body;
+        const costoEnvio = Number(envio || 0);
 
         // --- CHIVATO PARA DEPURAR ---
         console.log("----------------------------------------");
         console.log("CUPÓN RECIBIDO EN EL SERVIDOR:", cupon);
         console.log("ITEMS RECIBIDOS:", items);
+        console.log("ENVÍO RECIBIDO:", costoEnvio);
         console.log("----------------------------------------");
 
         // NORMALIZAR PRODUCTOS Y APLICAR DESCUENTO DE CUPÓN
         const itemsFormateados = (items || []).map(item => {
             let precioUnitario = Number(item.unit_price || item.precio || 0);
 
-            // Validar cupón MATE95 (99% de descuento según tu vista previa)
-            if (cupon && cupon.trim().toUpperCase() === 'MATE95') {
-                precioUnitario = precioUnitario * 0.01; 
+            // Validar cupón MATES95
+            if (cupon && cupon.trim().toUpperCase() === 'MATES95') {
+                precioUnitario = precioUnitario * 0.02; 
             }
 
             return {
@@ -78,6 +80,17 @@ app.post('/api/crear-preferencia', async (req, res) => {
             };
         });
 
+        // AGREGAR EL COSTO DE ENVÍO COMO UN ÍTEM APARTADO
+        if (costoEnvio > 0) {
+            itemsFormateados.push({
+                id: 'envio',
+                title: 'Costo de Envío a Domicilio',
+                unit_price: Number(costoEnvio.toFixed(2)),
+                quantity: 1,
+                currency_id: 'ARS'
+            });
+        }
+
         // Calcular total y lista
         const total = itemsFormateados.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
         const listaProd = itemsFormateados.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
@@ -86,9 +99,8 @@ app.post('/api/crear-preferencia', async (req, res) => {
         const metodoEntrega = cliente?.metodo || 'envio';
         let textoMetodo = metodoEntrega === 'retiro' 
             ? '🏪 <b>RETIRO EN LOCAL (H. Yrigoyen 710)</b>' 
-            : `🚚 <b>ENVÍO A DOMICILIO</b>\n📍 <b>Dirección:</b> ${cliente?.direccion || 'No especificada'}, ${cliente?.localidad || ''}`;
+            : `🚚 <b>ENVÍO A DOMICILIO</b>\n📍 <b>Dirección:</b> ${cliente?.direccion || 'No especificada'}, ${cliente?.localidad || ''}\n💵 <b>Costo de Envío:</b> $${costoEnvio}`;
 
-        // Mensaje limpio para Telegram (refleja el total con descuento)
         let avisoTelegram = `🛒 <b>¡NUEVO PEDIDO INICIADO!</b> 🛒\n\n` +
             `👤 <b>Cliente:</b> ${cliente?.nombre || 'No especificado'}\n` +
             `📞 <b>Teléfono:</b> ${cliente?.telefono || 'No especificado'}\n` +
@@ -98,8 +110,8 @@ app.post('/api/crear-preferencia', async (req, res) => {
             avisoTelegram += `🎟️ <b>Cupón Aplicado:</b> ${cupon.toUpperCase()}\n`;
         }
 
-        avisoTelegram += `💵 <b>Total:</b> $${total}\n\n` +
-            `📦 <b>Productos:</b>\n${listaProd}`;
+        avisoTelegram += `💵 <b>Total (Incluyendo envío):</b> $${total}\n\n` +
+            `📦 <b>Conceptos:</b>\n${listaProd}`;
         
         await enviarNotificacionTelegram(avisoTelegram);
 
@@ -121,6 +133,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
                     metodo_entrega: metodoEntrega,
                     cliente_direccion: cliente?.direccion || 'No especificada',
                     cliente_localidad: cliente?.localidad || 'No especificada',
+                    costo_envio: costoEnvio,
                     cupon_usado: cupon || 'Ninguno'
                 }
             }
@@ -158,7 +171,7 @@ app.post('/api/webhook-mp', async (req, res) => {
                         const metodoEntrega = metadata.metodo_entrega || 'envio';
                         let textoMetodoWebhook = metodoEntrega === 'retiro' 
                             ? '🏪 <b>RETIRO EN LOCAL (H. Yrigoyen 710)</b>' 
-                            : `🚚 <b>ENVÍO A DOMICILIO</b>\n📍 <b>Dirección:</b> ${metadata.cliente_direccion || 'N/A'}, ${metadata.cliente_localidad || ''}`;
+                            : `🚚 <b>ENVÍO A DOMICILIO</b>\n📍 <b>Dirección:</b> ${metadata.cliente_direccion || 'N/A'}, ${metadata.cliente_localidad || ''}\n💵 <b>Costo de Envío:</b> $${metadata.costo_envio || 0}`;
 
                         let mensaje = `✅ <b>¡COMPRA PAGADA Y APROBADA!</b> ✅\n\n` +
                             `👤 <b>Cliente:</b> ${metadata.cliente_nombre || 'N/A'}\n` +
@@ -170,7 +183,7 @@ app.post('/api/webhook-mp', async (req, res) => {
                         }
 
                         mensaje += `💵 <b>Total Pagado:</b> $${paymentData.transaction_amount}\n\n` +
-                            `📦 <b>Productos:</b>\n${listaProductos}`;
+                            `📦 <b>Conceptos:</b>\n${listaProductos}`;
 
                         await enviarNotificacionTelegram(mensaje);
                     }

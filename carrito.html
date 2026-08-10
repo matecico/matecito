@@ -185,7 +185,7 @@
         </div>
 
         <div class="linea-resumen">
-          <span class="etiqueta-descuento">Total Transferencia (10% OFF):</span>
+          <span class="etiqueta-descuento">Total Transferencia (8% OFF):</span>
           <span id="total-transferencia" class="monto-descuento">$0</span>
         </div>
 
@@ -201,7 +201,7 @@
   <script>
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
     let costoEnvioActual = 0;
-    let descuentoCupon = 0;
+    let descuentoCupon = 1;
 
     document.addEventListener('DOMContentLoaded', () => {
         renderizarCarrito();
@@ -227,30 +227,52 @@
         if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
         if (!validarFormularioDatos()) return;
 
+        // Asegurar cálculo de envío antes de enviar los datos
+        const metodoEntregaSeleccionado = document.querySelector('input[name="metodo-entrega"]:checked').value;
+        if (metodoEntregaSeleccionado === 'envio') {
+            calcularEnvioCP(); 
+        }
+
         const btnPagar = document.getElementById('btn-pagar');
         const textoOriginal = "PAGAR (Mercado Pago)";
         
         btnPagar.innerText = "Generando pago...";
         btnPagar.disabled = true;
 
-        const metodoEntrega = document.querySelector('input[name="metodo-entrega"]:checked').value;
-        const textoMetodo = metodoEntrega === 'envio' ? 'Envío a Domicilio' : 'Retiro en Tienda';
+        const textoMetodo = metodoEntregaSeleccionado === 'envio' ? 'Envío a Domicilio' : 'Retiro en Tienda';
 
         const datosCliente = {
             nombre: document.getElementById('cliente-nombre').value.trim(),
             telefono: document.getElementById('cliente-telefono').value.trim(),
-            metodo: textoMetodo, // Ahora envía "Envío a Domicilio" o "Retiro en Tienda" explícitamente
-            direccion: metodoEntrega === 'envio' ? document.getElementById('cliente-direccion').value.trim() : 'Retiro en local',
-            localidad: metodoEntrega === 'envio' ? document.getElementById('input-localidad').value.trim() : 'Local'
+            metodo: textoMetodo,
+            direccion: metodoEntregaSeleccionado === 'envio' ? document.getElementById('cliente-direccion').value.trim() : 'Retiro en local',
+            localidad: metodoEntregaSeleccionado === 'envio' ? document.getElementById('input-localidad').value.trim() : 'Local'
         };
+
+        const cuponIngresado = document.getElementById('input-cupon').value.trim();
+
+        const itemsParaEnviar = carrito.map(item => {
+            let precioUnitarioLista;
+            if (descuentoCupon < 1) {
+                precioUnitarioLista = Math.round(item.precio * descuentoCupon);
+            } else {
+                precioUnitarioLista = Math.round(item.precio / 0.92);
+            }
+            return {
+                ...item,
+                precio: precioUnitarioLista
+            };
+        });
 
         try {
             const response = await fetch('https://matecito.onrender.com/api/crear-preferencia', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    items: carrito,
-                    cliente: datosCliente 
+                    items: itemsParaEnviar,
+                    envio: costoEnvioActual, // Envía el costo exacto del envío
+                    cliente: datosCliente,
+                    cupon: cuponIngresado
                 })
             });
             
@@ -391,12 +413,16 @@
         if (!inputCupon || !mensajeCupon) return;
         
         const codigo = inputCupon.value.trim().toUpperCase();
-        if (codigo === 'MATE95') {
-            descuentoCupon = 0.99;
+        
+        if (codigo === '') {
+            descuentoCupon = 1;
+            mensajeCupon.innerText = '';
+        } else if (codigo === 'MATES95') {
+            descuentoCupon = 0.02; 
             mensajeCupon.style.color = '#25d366';
-            mensajeCupon.innerText = '¡Cupón MATE95 aplicado (99% OFF)!';
+            mensajeCupon.innerText = '¡Cupón MATES95 aplicado!';
         } else {
-            descuentoCupon = 0;
+            descuentoCupon = 1;
             mensajeCupon.style.color = '#ff4d4d';
             mensajeCupon.innerText = 'Código inválido';
         }
@@ -406,13 +432,15 @@
     function actualizarTotales() {
         const subtotal = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
         let totalLista, totalTransferencia;
-        if (descuentoCupon === 0.99) {
-            const subtotalConDescuento = Math.round(subtotal * 0.01);
+        
+        if (descuentoCupon < 1) {
+            const subtotalConDescuento = Math.round(subtotal * descuentoCupon);
             totalLista = subtotalConDescuento + costoEnvioActual;
             totalTransferencia = totalLista;
         } else {
-            totalLista = subtotal + costoEnvioActual;
-            totalTransferencia = Math.round(totalLista * (1 - (0.10 + descuentoCupon)));
+            const subtotalLista = Math.round(subtotal / 0.92);
+            totalTransferencia = subtotal + costoEnvioActual;
+            totalLista = subtotalLista + costoEnvioActual; 
         }
         
         const totalListaEl = document.getElementById('total-lista');
@@ -431,7 +459,7 @@
         const telefono = document.getElementById('cliente-telefono').value.trim();
         
         let detalleEntregaStr = metodo === 'envio' 
-            ? `%0A*Método:* Envío a Domicilio%0A*Dirección:* ${document.getElementById('cliente-direccion').value.trim()}, ${document.getElementById('input-localidad').value.trim()}`
+            ? `%0A*Método:* Envío a Domicilio%0A*Dirección:* ${document.getElementById('cliente-direccion').value.trim()}, ${document.getElementById('input-localidad').value.trim()}%0A*Costo de Envío:* $${costoEnvioActual}`
             : `%0A*Método:* Retiro en Tienda (H. Yrigoyen 710, Cañuelas)`;
 
         const totalTransf = document.getElementById('total-transferencia').innerText;
