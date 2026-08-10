@@ -54,6 +54,12 @@ app.post('/api/crear-preferencia', async (req, res) => {
     try {
         const { items, cliente, cupon } = req.body;
 
+        // --- CHIVATO PARA DEPURAR ---
+        console.log("----------------------------------------");
+        console.log("CUPÓN RECIBIDO EN EL SERVIDOR:", cupon);
+        console.log("ITEMS RECIBIDOS:", items);
+        console.log("----------------------------------------");
+
         // NORMALIZAR PRODUCTOS Y APLICAR DESCUENTO DE CUPÓN
         const itemsFormateados = (items || []).map(item => {
             let precioUnitario = Number(item.unit_price || item.precio || 0);
@@ -149,7 +155,6 @@ app.post('/api/webhook-mp', async (req, res) => {
 
                         let listaProductos = items.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
 
-                        // Recuperar método de entrega desde los metadatos de Mercado Pago
                         const metodoEntrega = metadata.metodo_entrega || 'envio';
                         let textoMetodoWebhook = metodoEntrega === 'retiro' 
                             ? '🏪 <b>RETIRO EN LOCAL (H. Yrigoyen 710)</b>' 
