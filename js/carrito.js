@@ -199,7 +199,7 @@ function actualizarTotalesPantalla(subtotalConDescuento) {
   }
 }
 
-// 4. PROCESAR PAGO CON VALIDACIONES ESTRICTAS
+// 4. PROCESAR PAGO CON VALIDACIONES ESTRICTAS (CORREGIDO CON /api/)
 async function procesarPagoStrict(e) {
   if (e) {
     e.preventDefault();
@@ -278,9 +278,9 @@ async function procesarPagoStrict(e) {
   };
 
   const btnPagar = document.getElementById('btn-pagar') || 
-                   Array.from(document.querySelectorAll('button')).find(el => 
-                     el.innerText.toLowerCase().includes('pagar')
-                   );
+                    Array.from(document.querySelectorAll('button')).find(el => 
+                      el.innerText.toLowerCase().includes('pagar')
+                    );
 
   if (btnPagar) {
     btnPagar.innerText = 'Cargando...';
@@ -288,6 +288,7 @@ async function procesarPagoStrict(e) {
   }
 
   try {
+    // AQUÍ ESTABA EL ERROR: Se agregó el /api/ al endpoint
     const respuesta = await fetch('https://matecito.onrender.com/api/crear-preferencia', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
