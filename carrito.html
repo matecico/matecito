@@ -227,18 +227,13 @@
         if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
         if (!validarFormularioDatos()) return;
 
-        // Asegurar cálculo de envío antes de enviar los datos
-        const metodoEntregaSeleccionado = document.querySelector('input[name="metodo-entrega"]:checked').value;
-        if (metodoEntregaSeleccionado === 'envio') {
-            calcularEnvioCP(); 
-        }
-
         const btnPagar = document.getElementById('btn-pagar');
         const textoOriginal = "PAGAR (Mercado Pago)";
         
         btnPagar.innerText = "Generando pago...";
         btnPagar.disabled = true;
 
+        const metodoEntregaSeleccionado = document.querySelector('input[name="metodo-entrega"]:checked').value;
         const textoMetodo = metodoEntregaSeleccionado === 'envio' ? 'Envío a Domicilio' : 'Retiro en Tienda';
 
         const datosCliente = {
@@ -270,7 +265,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
                     items: itemsParaEnviar,
-                    envio: costoEnvioActual, // Envía el costo exacto del envío
+                    envio: costoEnvioActual,
                     cliente: datosCliente,
                     cupon: cuponIngresado
                 })
@@ -300,10 +295,18 @@
         const telefono = document.getElementById('cliente-telefono').value.trim();
         
         if (!nombre || !telefono) { alert('Por favor, completa Nombre y Teléfono.'); return false; }
+        
         if (metodo === 'envio') {
             const direccion = document.getElementById('cliente-direccion').value.trim();
             const localidad = document.getElementById('input-localidad').value.trim();
             if (!direccion || !localidad) { alert('Por favor, completa dirección y localidad.'); return false; }
+            
+            // --- VALIDACIÓN ESTRICTA DEL CÓDIGO POSTAL Y COSTO DE ENVÍO ---
+            if (!costoEnvioActual || costoEnvioActual <= 0) {
+                alert("⚠️ Por favor, ingresa tu Código Postal y haz clic en 'Calcular' antes de continuar.");
+                document.getElementById('input-cp').focus();
+                return false;
+            }
         }
         return true;
     }
