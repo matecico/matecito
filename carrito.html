@@ -461,7 +461,7 @@
 
     function finalizarWhatsAppReal() {
         const texto = `Hola! Quiero comprar: ${carrito.map(i => i.nombre + ' (x' + (Number(i.cantidad) || 1) + ')').join(', ')}. Total a transferir: ${document.getElementById('total-transferencia').innerText}.`;
-        window.open(`https://wa.me/5491160149903?text=${encodeURIComponent(texto)}`, '_blank');
+        window.location.href = `https://wa.me/5491172512192?text=${encodeURIComponent(texto)}`;
     }
   </script>
 </body>
