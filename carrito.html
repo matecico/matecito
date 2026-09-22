@@ -221,7 +221,6 @@
 
   <script>
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    // Forzar siempre a número las cantidades
     carrito = carrito.map(item => ({
         ...item,
         cantidad: Number(item.cantidad) || 1
@@ -272,9 +271,11 @@
         });
 
         document.getElementById('modal-btn-cancelar').addEventListener('click', cerrarModalAdvertencia);
+        
         document.getElementById('modal-btn-aceptar').addEventListener('click', () => {
+            const accion = accionPendiente;
             cerrarModalAdvertencia();
-            if (accionPendiente) accionPendiente();
+            if (accion) accion();
         });
     });
 
@@ -371,17 +372,16 @@
             return;
         }
 
-        // Suma de pesos: Sets=1.2kg, Termos=0.6kg, Canastas/Bolsos=0.5kg, Mates/Accesorios=0.3kg
         const pesoTotal = carrito.reduce((acc, item) => {
             const nombreLower = item.nombre ? item.nombre.toLowerCase() : '';
-            let p = 0.3; // Default para Mates (Imperial, Animal Print, etc.) y accesorios
+            let p = 0.3;
             
             if (nombreLower.includes('set')) {
-                p = 1.2; // 1 Set de mate = 1.2 kg exactos
+                p = 1.2;
             } else if (nombreLower.includes('termo')) {
-                p = 0.6; // 1 Termo = 0.6 kg
+                p = 0.6;
             } else if (nombreLower.includes('canasta') || nombreLower.includes('bolso')) {
-                p = 0.5; // 1 Canasta / Bolso = 0.5 kg
+                p = 0.5;
             } else if (item.peso && !isNaN(Number(item.peso)) && Number(item.peso) > 0) {
                 p = Number(item.peso);
             }
@@ -390,10 +390,7 @@
             return acc + (p * cantidad);
         }, 0);
 
-        // Tarifa base por Código Postal
         let tarifaBase = cp.startsWith('1') ? 10500 : 13000;
-
-        // Base cubre hasta 1.2 kg ($0 plus). Si supera 1.2 kg, cobra $3.000 por cada kg/bloque excedente
         let plusEnvio = 0;
         if (pesoTotal > 1.2) {
             const exceso = pesoTotal - 1.2;
