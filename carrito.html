@@ -80,6 +80,16 @@
     .btn-pagar-ahora:hover { background-color: #0056b3; }
     .btn-whatsapp-compra { width: 100%; background-color: #25d366; color: #000000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 0.8rem; cursor: pointer; text-align: center; line-height: 1.3; }
     .btn-whatsapp-compra:hover { background-color: #1ebd56; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+    .modal-contenido { background-color: #1e1e1e; border: 1px solid #333333; border-top: 4px solid #e5c158; border-radius: 8px; max-width: 480px; width: 100%; padding: 25px; display: flex; flex-direction: column; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .modal-titulo { display: flex; align-items: center; gap: 8px; color: #e5c158; font-weight: bold; font-size: 1rem; }
+    .modal-texto { font-size: 0.82rem; color: #cccccc; line-height: 1.5; display: flex; flex-direction: column; gap: 8px; }
+    .modal-botones { display: flex; gap: 10px; margin-top: 10px; }
+    .modal-btn-cancelar { flex: 1; background: transparent; border: 1px solid #555555; color: #ffffff; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+    .modal-btn-cancelar:hover { background-color: rgba(255,255,255,0.05); }
+    .modal-btn-aceptar { flex: 1; background-color: #25d366; border: none; color: #000000; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer; text-align: center; }
+    .modal-btn-aceptar:hover { background-color: #1ebd56; }
   </style>
 </head>
 <body>
@@ -198,10 +208,28 @@
     </div>
   </main>
 
+  <div class="modal-overlay" id="modal-advertencia">
+    <div class="modal-contenido">
+      <div class="modal-titulo" id="modal-titulo-texto"><span>⚠️</span> IMPORTANTE</div>
+      <div class="modal-texto" id="modal-cuerpo-texto"></div>
+      <div class="modal-botones">
+        <button type="button" class="modal-btn-cancelar" id="modal-btn-cancelar">Revisar datos</button>
+        <button type="button" class="modal-btn-aceptar" id="modal-btn-aceptar">Aceptar y Continuar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    // Forzar siempre a número las cantidades
+    carrito = carrito.map(item => ({
+        ...item,
+        cantidad: Number(item.cantidad) || 1
+    }));
+
     let costoEnvioActual = 0;
     let descuentoCupon = 1;
+    let accionPendiente = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         renderizarCarrito();
@@ -212,264 +240,228 @@
 
         toggleMetodoEntrega();
 
-        document.getElementById('btn-calcular-envio').addEventListener('click', calcularEnvioCP);
+        const btnCalcular = document.getElementById('btn-calcular-envio');
+        const inputCp = document.getElementById('input-cp');
+
+        if (btnCalcular) {
+            btnCalcular.addEventListener('click', calcularEnvioCP);
+        }
+        if (inputCp) {
+            inputCp.addEventListener('input', calcularEnvioCP);
+            inputCp.addEventListener('change', calcularEnvioCP);
+        }
+
         document.getElementById('btn-aplicar-cupon').addEventListener('click', aplicarCupon);
         document.getElementById('btn-vaciar').addEventListener('click', () => {
             localStorage.removeItem('carrito');
             carrito = [];
             renderizarCarrito();
         });
-        document.getElementById('btn-finalizar').addEventListener('click', finalizarWhatsApp);
-        document.getElementById('btn-pagar').addEventListener('click', procesarPagoMercadoPago);
+
+        document.getElementById('btn-pagar').addEventListener('click', () => {
+            if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
+            if (!validarFormularioDatos()) return;
+            abrirModalAdvertencia(procesarPagoMercadoPagoReal);
+        });
+
+        document.getElementById('btn-finalizar').addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
+            if (!validarFormularioDatos()) return;
+            abrirModalAdvertencia(finalizarWhatsAppReal);
+        });
+
+        document.getElementById('modal-btn-cancelar').addEventListener('click', cerrarModalAdvertencia);
+        document.getElementById('modal-btn-aceptar').addEventListener('click', () => {
+            cerrarModalAdvertencia();
+            if (accionPendiente) accionPendiente();
+        });
     });
 
-    async function procesarPagoMercadoPago() {
-        if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
-        if (!validarFormularioDatos()) return;
+    function abrirModalAdvertencia(accion) {
+        accionPendiente = accion;
+        const metodo = document.querySelector('input[name="metodo-entrega"]:checked').value;
+        const modalTitulo = document.getElementById('modal-titulo-texto');
+        const modalCuerpo = document.getElementById('modal-cuerpo-texto');
+        const modalOverlay = document.getElementById('modal-advertencia');
 
+        if (metodo === 'retiro') {
+            modalTitulo.innerHTML = `<span>⚠️</span> IMPORTANTE – RETIRO POR EL LOCAL`;
+            modalCuerpo.innerHTML = `<span>Antes de confirmar tu compra, verificá cuidadosamente que todos los datos ingresados sean correctos.</span><span>🏪 <b>MateCico</b> no se responsabiliza por datos mal ingresados.</span><span style="color: #ffffff; font-weight: bold;">Al confirmar, aceptás estas condiciones.</span>`;
+        } else {
+            modalTitulo.innerHTML = `<span>⚠️</span> IMPORTANTE – DATOS DE ENVÍO`;
+            modalCuerpo.innerHTML = `<span>Antes de confirmar tu compra, verificá cuidadosamente que todos los datos de envío sean correctos.</span><span>📦 <b>MateCico</b> no se responsabiliza por demoras debidas a datos incorrectos o incompletos.</span><span style="color: #ffffff; font-weight: bold;">Al confirmar, aceptás estas condiciones.</span>`;
+        }
+        modalOverlay.style.display = 'flex';
+    }
+
+    function cerrarModalAdvertencia() {
+        document.getElementById('modal-advertencia').style.display = 'none';
+        accionPendiente = null;
+    }
+
+    async function procesarPagoMercadoPagoReal() {
         const btnPagar = document.getElementById('btn-pagar');
         const textoOriginal = "PAGAR (Mercado Pago)";
-        
-        btnPagar.innerText = "Generando pago...";
+        btnPagar.innerText = "Despertando servidor y generando pago...";
         btnPagar.disabled = true;
 
         const metodoEntregaSeleccionado = document.querySelector('input[name="metodo-entrega"]:checked').value;
-        const textoMetodo = metodoEntregaSeleccionado === 'envio' ? 'Envío a Domicilio' : 'Retiro en Tienda';
-
         const datosCliente = {
             nombre: document.getElementById('cliente-nombre').value.trim(),
             telefono: document.getElementById('cliente-telefono').value.trim(),
-            metodo: textoMetodo,
+            metodo: metodoEntregaSeleccionado === 'envio' ? 'Envío a Domicilio' : 'Retiro en Tienda',
             direccion: metodoEntregaSeleccionado === 'envio' ? document.getElementById('cliente-direccion').value.trim() : 'Retiro en local',
-            localidad: metodoEntregaSeleccionado === 'envio' ? document.getElementById('input-localidad').value.trim() : 'Local'
+            localidad: metodoEntregaSeleccionado === 'envio' ? document.getElementById('input-localidad').value.trim() : 'Local',
+            notas: document.getElementById('cliente-notas').value.trim()
         };
 
-        const cuponIngresado = document.getElementById('input-cupon').value.trim();
-
-        const itemsParaEnviar = carrito.map(item => {
-            let precioUnitarioLista;
-            if (descuentoCupon < 1) {
-                precioUnitarioLista = Math.round(item.precio * descuentoCupon);
-            } else {
-                precioUnitarioLista = Math.round(item.precio / 0.92);
-            }
-            return {
-                ...item,
-                precio: precioUnitarioLista
-            };
-        });
+        const itemsParaEnviar = carrito.map(item => ({
+            ...item,
+            precio: Math.round(descuentoCupon < 1 ? (item.precio * descuentoCupon) : (item.precio / 0.92))
+        }));
 
         try {
             const response = await fetch('https://matecito.onrender.com/api/crear-preferencia', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    items: itemsParaEnviar,
-                    envio: costoEnvioActual,
-                    cliente: datosCliente,
-                    cupon: cuponIngresado
-                })
+                body: JSON.stringify({ items: itemsParaEnviar, envio: costoEnvioActual, cliente: datosCliente, cupon: document.getElementById('input-cupon').value.trim() })
             });
             
             const data = await response.json();
-            
             if (response.ok && data.init_point) {
                 window.location.href = data.init_point;
             } else {
-                throw new Error(data.message || 'Error al generar la preferencia');
+                throw new Error(data.message || 'Error al conectar con el servidor.');
             }
         } catch (error) {
-            console.error(error);
-            alert('Error de conexión. Por favor intentá de nuevo.');
+            console.error("Error:", error);
+            alert('⚠️ Error de conexión. El servidor podría estar despertando, por favor intentá de nuevo en 30 segundos.');
         } finally {
             btnPagar.innerText = textoOriginal;
             btnPagar.disabled = false;
         }
     }
 
-    function validarFormularioDatos() {
-        const metodoChecked = document.querySelector('input[name="metodo-entrega"]:checked');
-        if (!metodoChecked) return false;
-        const metodo = metodoChecked.value;
-        const nombre = document.getElementById('cliente-nombre').value.trim();
-        const telefono = document.getElementById('cliente-telefono').value.trim();
-        
-        if (!nombre || !telefono) { alert('Por favor, completa Nombre y Teléfono.'); return false; }
-        
-        if (metodo === 'envio') {
-            const direccion = document.getElementById('cliente-direccion').value.trim();
-            const localidad = document.getElementById('input-localidad').value.trim();
-            if (!direccion || !localidad) { alert('Por favor, completa dirección y localidad.'); return false; }
-            
-            // --- VALIDACIÓN ESTRICTA DEL CÓDIGO POSTAL Y COSTO DE ENVÍO ---
-            if (!costoEnvioActual || costoEnvioActual <= 0) {
-                alert("⚠️ Por favor, ingresa tu Código Postal y haz clic en 'Calcular' antes de continuar.");
-                document.getElementById('input-cp').focus();
-                return false;
-            }
-        }
-        return true;
-    }
-
     function toggleMetodoEntrega() {
-        const tarjetas = document.querySelectorAll('.tarjeta-opcion');
-        tarjetas.forEach(tarjeta => {
-            const input = tarjeta.querySelector('input');
-            if (input && input.checked) {
-                tarjeta.classList.add('seleccionada');
-            } else {
-                tarjeta.classList.remove('seleccionada');
-            }
-        });
-
-        const metodoChecked = document.querySelector('input[name="metodo-entrega"]:checked');
-        if (!metodoChecked) return;
-        const metodo = metodoChecked.value;
-
+        const metodo = document.querySelector('input[name="metodo-entrega"]:checked').value;
         const contenedorDir = document.getElementById('contenedor-direccion');
         const contenedorLocalidad = document.getElementById('contenedor-localidad');
         const cajaResumenEnvio = document.getElementById('caja-envio-resumen');
 
         if (metodo === 'retiro') {
-            if (contenedorDir) contenedorDir.style.display = 'none';
-            if (contenedorLocalidad) contenedorLocalidad.style.display = 'none';
-            if (cajaResumenEnvio) cajaResumenEnvio.style.display = 'none';
+            contenedorDir.style.display = 'none'; contenedorLocalidad.style.display = 'none'; cajaResumenEnvio.style.display = 'none';
             costoEnvioActual = 0;
-            const costoEnvioEl = document.getElementById('costo-envio');
-            if (costoEnvioEl) costoEnvioEl.innerText = '$0';
         } else {
-            if (contenedorDir) contenedorDir.style.display = 'flex';
-            if (contenedorLocalidad) contenedorLocalidad.style.display = 'flex';
-            if (cajaResumenEnvio) cajaResumenEnvio.style.display = 'flex';
+            contenedorDir.style.display = 'flex'; contenedorLocalidad.style.display = 'flex'; cajaResumenEnvio.style.display = 'flex';
             calcularEnvioCP();
         }
         actualizarTotales();
     }
 
-    function renderizarCarrito() {
-        const contenedor = document.getElementById('contenedor-carrito');
-        if (!contenedor) return;
-
-        if (carrito.length === 0) {
-            contenedor.innerHTML = '<p style="color: #aaa; padding: 15px;">Tu carrito está vacío.</p>';
+    function calcularEnvioCP() {
+        const cpInput = document.getElementById('input-cp');
+        if (!cpInput) return;
+        const cp = cpInput.value.trim();
+        
+        if (cp === '' || carrito.length === 0) {
+            costoEnvioActual = 0;
+            document.getElementById('costo-envio').innerText = '$' + costoEnvioActual;
             actualizarTotales();
             return;
         }
 
-        contenedor.innerHTML = '';
+        // Suma de pesos: Sets=1.2kg, Termos=0.6kg, Canastas/Bolsos=0.5kg, Mates/Accesorios=0.3kg
+        const pesoTotal = carrito.reduce((acc, item) => {
+            const nombreLower = item.nombre ? item.nombre.toLowerCase() : '';
+            let p = 0.3; // Default para Mates (Imperial, Animal Print, etc.) y accesorios
+            
+            if (nombreLower.includes('set')) {
+                p = 1.2; // 1 Set de mate = 1.2 kg exactos
+            } else if (nombreLower.includes('termo')) {
+                p = 0.6; // 1 Termo = 0.6 kg
+            } else if (nombreLower.includes('canasta') || nombreLower.includes('bolso')) {
+                p = 0.5; // 1 Canasta / Bolso = 0.5 kg
+            } else if (item.peso && !isNaN(Number(item.peso)) && Number(item.peso) > 0) {
+                p = Number(item.peso);
+            }
+            
+            const cantidad = Number(item.cantidad) || 1;
+            return acc + (p * cantidad);
+        }, 0);
+
+        // Tarifa base por Código Postal
+        let tarifaBase = cp.startsWith('1') ? 10500 : 13000;
+
+        // Base cubre hasta 1.2 kg ($0 plus). Si supera 1.2 kg, cobra $3.000 por cada kg/bloque excedente
+        let plusEnvio = 0;
+        if (pesoTotal > 1.2) {
+            const exceso = pesoTotal - 1.2;
+            plusEnvio = Math.ceil(exceso) * 3000;
+        }
+
+        costoEnvioActual = tarifaBase + plusEnvio;
+
+        document.getElementById('costo-envio').innerText = '$' + costoEnvioActual;
+        actualizarTotales();
+    }
+
+    function aplicarCupon() {
+        const codigo = document.getElementById('input-cupon').value.trim().toUpperCase();
+        descuentoCupon = (codigo === 'MATES95') ? 0.02 : 1;
+        document.getElementById('mensaje-cupon').innerText = (descuentoCupon < 1) ? '¡Cupón aplicado!' : (codigo ? 'Código inválido' : '');
+        actualizarTotales();
+    }
+
+    function renderizarCarrito() {
+        const contenedor = document.getElementById('contenedor-carrito');
+        contenedor.innerHTML = carrito.length === 0 ? '<p>Tu carrito está vacío.</p>' : '';
         carrito.forEach((item, index) => {
-            contenedor.innerHTML += `
-                <div class="item-carrito">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <img src="${item.imagen || 'img/placeholder.jpg'}" alt="${item.nombre}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 5px;">
-                        <div>
-                            <h4 style="color: #fff; margin-bottom: 5px;">${item.nombre}</h4>
-                            <span style="color: #aaa;">$${item.precio}</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div class="selector-cantidad">
-                            <button type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
-                            <span>${item.cantidad}</span>
-                            <button type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
-                        </div>
-                        <span style="font-weight: bold; color: #fff;">$${item.precio * item.cantidad}</span>
-                        <button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">🗑️</button>
-                    </div>
-                </div>`;
+            const cantidadNum = Number(item.cantidad) || 1;
+            contenedor.innerHTML += `<div class="item-carrito"><h4>${item.nombre}</h4><div class="selector-cantidad"><button type="button" onclick="cambiarCantidad(${index}, -1)">-</button><span>${cantidadNum}</span><button type="button" onclick="cambiarCantidad(${index}, 1)">+</button></div><span>$${item.precio * cantidadNum}</span><button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">🗑️</button></div>`;
         });
         actualizarTotales();
     }
 
     function cambiarCantidad(index, delta) {
-        carrito[index].cantidad += delta;
-        if (carrito[index].cantidad <= 0) carrito.splice(index, 1);
+        let cantidadActual = Number(carrito[index].cantidad) || 1;
+        cantidadActual += delta;
+        
+        if (cantidadActual <= 0) {
+            carrito.splice(index, 1);
+        } else {
+            carrito[index].cantidad = cantidadActual;
+        }
+
         localStorage.setItem('carrito', JSON.stringify(carrito));
         renderizarCarrito();
+        calcularEnvioCP();
     }
 
     function eliminarItem(index) {
         carrito.splice(index, 1);
         localStorage.setItem('carrito', JSON.stringify(carrito));
         renderizarCarrito();
-    }
-
-    function calcularEnvioCP() {
-        const metodoChecked = document.querySelector('input[name="metodo-entrega"]:checked');
-        if (!metodoChecked || metodoChecked.value === 'retiro') { costoEnvioActual = 0; return; }
-        const cpInput = document.getElementById('input-cp');
-        if (!cpInput) return;
-        const cp = cpInput.value.trim();
-        
-        if (cp.startsWith('18') || cp.startsWith('14') || cp.startsWith('1')) { costoEnvioActual = 3500; } 
-        else if (cp !== '') { costoEnvioActual = 6500; } 
-        else { costoEnvioActual = 0; }
-        
-        const costoEnvioEl = document.getElementById('costo-envio');
-        if (costoEnvioEl) costoEnvioEl.innerText = '$' + costoEnvioActual;
-        actualizarTotales();
-    }
-
-    function aplicarCupon() {
-        const inputCupon = document.getElementById('input-cupon');
-        const mensajeCupon = document.getElementById('mensaje-cupon');
-        if (!inputCupon || !mensajeCupon) return;
-        
-        const codigo = inputCupon.value.trim().toUpperCase();
-        
-        if (codigo === '') {
-            descuentoCupon = 1;
-            mensajeCupon.innerText = '';
-        } else if (codigo === 'MATES95') {
-            descuentoCupon = 0.02; 
-            mensajeCupon.style.color = '#25d366';
-            mensajeCupon.innerText = '¡Cupón MATES95 aplicado!';
-        } else {
-            descuentoCupon = 1;
-            mensajeCupon.style.color = '#ff4d4d';
-            mensajeCupon.innerText = 'Código inválido';
-        }
-        actualizarTotales();
+        calcularEnvioCP();
     }
 
     function actualizarTotales() {
-        const subtotal = carrito.reduce((acc, item) => acc + (item.precio * item.cantidad), 0);
-        let totalLista, totalTransferencia;
-        
-        if (descuentoCupon < 1) {
-            const subtotalConDescuento = Math.round(subtotal * descuentoCupon);
-            totalLista = subtotalConDescuento + costoEnvioActual;
-            totalTransferencia = totalLista;
-        } else {
-            const subtotalLista = Math.round(subtotal / 0.92);
-            totalTransferencia = subtotal + costoEnvioActual;
-            totalLista = subtotalLista + costoEnvioActual; 
-        }
-        
-        const totalListaEl = document.getElementById('total-lista');
-        const totalTransEl = document.getElementById('total-transferencia');
-        if (totalListaEl) totalListaEl.innerText = '$' + totalLista;
-        if (totalTransEl) totalTransEl.innerText = '$' + totalTransferencia;
+        const subtotal = carrito.reduce((acc, item) => acc + (item.precio * (Number(item.cantidad) || 1)), 0);
+        const totalTransferencia = (descuentoCupon < 1) ? (Math.round(subtotal * descuentoCupon) + costoEnvioActual) : (subtotal + costoEnvioActual);
+        const totalLista = (descuentoCupon < 1) ? totalTransferencia : (Math.round(subtotal / 0.92) + costoEnvioActual);
+        document.getElementById('total-lista').innerText = '$' + totalLista;
+        document.getElementById('total-transferencia').innerText = '$' + totalTransferencia;
     }
 
-    function finalizarWhatsApp(e) {
-        if (e) e.preventDefault();
-        if (carrito.length === 0) { alert('Tu carrito está vacío.'); return; }
-        if (!validarFormularioDatos()) return;
+    function validarFormularioDatos() {
+        if (!document.getElementById('cliente-nombre').value.trim() || !document.getElementById('cliente-telefono').value.trim()) { alert('Completa Nombre y Teléfono.'); return false; }
+        if (document.querySelector('input[name="metodo-entrega"]:checked').value === 'envio' && (!document.getElementById('cliente-direccion').value.trim() || costoEnvioActual === 0)) { alert('Completa dirección y calcula el envío.'); return false; }
+        return true;
+    }
 
-        const metodo = document.querySelector('input[name="metodo-entrega"]:checked').value;
-        const nombre = document.getElementById('cliente-nombre').value.trim();
-        const telefono = document.getElementById('cliente-telefono').value.trim();
-        
-        let detalleEntregaStr = metodo === 'envio' 
-            ? `%0A*Método:* Envío a Domicilio%0A*Dirección:* ${document.getElementById('cliente-direccion').value.trim()}, ${document.getElementById('input-localidad').value.trim()}%0A*Costo de Envío:* $${costoEnvioActual}`
-            : `%0A*Método:* Retiro en Tienda (H. Yrigoyen 710, Cañuelas)`;
-
-        const totalTransf = document.getElementById('total-transferencia').innerText;
-        let detalle = carrito.map(item => `- ${item.cantidad}x ${item.nombre} ($${item.precio * item.cantidad})`).join('%0A');
-        
-        let texto = `Hola! Quiero finalizar mi compra:%0A${detalle}%0A${detalleEntregaStr}%0A*Total Transferencia:* ${totalTransf}%0A*Nombre:* ${nombre}%0A*Teléfono:* ${telefono}`;
-        window.open(`https://wa.me/5491160149903?text=${texto}`, '_blank');
+    function finalizarWhatsAppReal() {
+        const texto = `Hola! Quiero comprar: ${carrito.map(i => i.nombre + ' (x' + (Number(i.cantidad) || 1) + ')').join(', ')}. Total a transferir: ${document.getElementById('total-transferencia').innerText}.`;
+        window.open(`https://wa.me/5491160149903?text=${encodeURIComponent(texto)}`, '_blank');
     }
   </script>
 </body>

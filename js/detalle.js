@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 1,
         nombre: "Set Matero Completo Premium",
         precio: 55275,
+        peso: 1.2,
         imagen: "img/comboset.png",
         descripcion: "Mate Imperial Deluxe con interior de acero inoxidable, canasta de cuerina negra, termo media manija gris, set de latas negras y bombilla pico de loro."
       },
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 2,
         nombre: "Mate Imperial Interior Calabaza",
         precio: 32000,
+        peso: 0.3,
         imagen: "img/matecalabaza.png",
         descripcion: "Virola de alpaca, interior de calabaza, cuero negro clásico y base reforzada."
       },
@@ -21,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 3,
         nombre: "Mate Imperial Negro",
         precio: 25000,
+        peso: 0.3,
         imagen: "img/mateimperial.png",
         descripcion: "Virola de acero, interior de acero inoxidable, cuero negro y base reforzada."
       },
@@ -28,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 4,
         nombre: "Termo de Acero Inoxidable 1L",
         precio: 20000,
+        peso: 0.6,
         imagen: "img/termo.png",
         descripcion: "Termo de 1L con media manija, pico cebador y color gris."
       },
@@ -35,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 5,
         nombre: "Peluche MateCico",
         precio: 20000,
+        peso: 0.2,
         imagen: "img/peluche.png",
         descripcion: "Peluche de mate de 15 cm, especial para regalos."
       },
@@ -42,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 6,
         nombre: "Canasta Matera",
         precio: 10000,
+        peso: 0.5,
         imagen: "img/canasta.png",
         descripcion: "Canasta matera con división interna, cuero grueso color negro."
       },
@@ -49,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 7,
         nombre: "Set Yerbera y Azucarera",
         precio: 6500,
+        peso: 0.3,
         imagen: "img/yerbera.png",
         descripcion: "Juego de latas con pico vertedor anti-derrame."
       },
@@ -56,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         id: 8,
         nombre: "Bombilla Pico de Loro",
         precio: 4500,
+        peso: 0.05,
         imagen: "img/bombilla.png",
         descripcion: "Bombilla pico de loro de acero inoxidable."
       }
@@ -136,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spanTarj.innerText = (precioTarjetaBase * cantidadActual).toLocaleString('es-AR');
     }
 
-    // 3. Botón Agregar al Carrito
+    // 3. Botón Agregar al Carrito (Con peso incluido)
     document.getElementById('btn-agregar-detalle').addEventListener('click', () => {
         let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
         const index = carrito.findIndex(x => x.id === producto.id);
@@ -144,7 +152,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (index !== -1) {
             carrito[index].cantidad += cantidadActual;
         } else {
-            carrito.push({ ...producto, cantidad: cantidadActual });
+            carrito.push({ 
+                id: producto.id,
+                nombre: producto.nombre,
+                precio: producto.precio,
+                peso: producto.peso !== undefined ? producto.peso : 0.3, // 👈 Asegura que se guarde el peso real
+                imagen: producto.imagen,
+                cantidad: cantidadActual 
+            });
         }
         
         localStorage.setItem('carrito', JSON.stringify(carrito));

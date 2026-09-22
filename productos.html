@@ -5,82 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MateCico - Catálogo de Productos</title>
   <style>
-    /* RESET Y ESTILOS GLOBALES */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background-color: #121212; color: #ffffff; font-family: 'Segoe UI', Arial, sans-serif; overflow-x: hidden; min-height: 100vh; width: 100%; }
     a, a:visited, a:hover, a:active { text-decoration: none !important; color: inherit !important; }
 
-    /* NAVBAR */
     .navbar { display: flex; flex-direction: column; align-items: center; padding: 15px 20px; background-color: #1e1e1e; border-bottom: 1px solid #2a2a2a; gap: 15px; width: 100%; }
     .nav-top { display: flex; width: 100%; justify-content: space-between; align-items: center; }
     .logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.4rem; color: #ffffff !important; }
     .logo-img { width: 38px !important; height: 38px !important; object-fit: cover !important; border-radius: 50%; }
     
-    /* BUSCADOR UNIFICADO */
-    .buscador-wrapper { 
-      position: relative; 
-      flex: 1; 
-      max-width: 400px; 
-      min-width: 220px; 
-      width: 100%; 
-      display: flex; 
-      background-color: #121212; 
-      border: 1px solid #333; 
-      border-radius: 6px; 
-      overflow: hidden; 
-      transition: border-color 0.2s; 
-    }
+    .buscador-wrapper { position: relative; flex: 1; max-width: 400px; min-width: 220px; width: 100%; display: flex; background-color: #121212; border: 1px solid #333; border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
     .buscador-wrapper:focus-within { border-color: #25d366; }
-    
-    .buscador-input { 
-      width: 100%; 
-      padding: 10px 15px; 
-      background: transparent; 
-      border: none; 
-      color: #fff; 
-      font-size: 0.9rem; 
-      outline: none; 
-    }
-    
-    .btn-buscar-lupa { 
-      background-color: #25d366; 
-      color: #121212; 
-      border: none; 
-      padding: 0 18px; 
-      font-weight: bold; 
-      cursor: pointer; 
-      transition: opacity 0.2s; 
-      border-radius: 0; 
-    }
+    .buscador-input { width: 100%; padding: 10px 15px; background: transparent; border: none; color: #fff; font-size: 0.9rem; outline: none; }
+    .btn-buscar-lupa { background-color: #25d366; color: #121212; border: none; padding: 0 18px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; border-radius: 0; }
     .btn-buscar-lupa:hover { opacity: 0.9; }
 
-    /* DROPDOWN DE RECOMENDACIONES */
-    .sugerencias-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background-color: #1e1e1e;
-      border: 1px solid #333;
-      border-radius: 6px;
-      margin-top: 5px;
-      max-height: 250px;
-      overflow-y: auto;
-      z-index: 1000;
-      display: none;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-    }
-    .sugerencia-item {
-      padding: 10px 15px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      border-bottom: 1px solid #2a2a2a;
-      color: #fff;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
+    .sugerencias-dropdown { position: absolute; top: 100%; left: 0; right: 0; background-color: #1e1e1e; border: 1px solid #333; border-radius: 6px; margin-top: 5px; max-height: 250px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 8px 16px rgba(0,0,0,0.5); }
+    .sugerencia-item { padding: 10px 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #2a2a2a; color: #fff; font-size: 0.9rem; transition: background 0.2s; }
     .sugerencia-item:last-child { border-bottom: none; }
     .sugerencia-item:hover { background-color: #2a2a2a; color: #25d366; }
     .sugerencia-img { width: 35px; height: 35px; object-fit: cover; background: #121212; border-radius: 4px; }
@@ -94,7 +35,6 @@
         .nav-top { width: auto; } 
     }
 
-    /* SECCIÓN CATÁLOGO */
     .seccion-catalogo { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: flex; flex-direction: column; gap: 30px; }
     .seccion-titulo { font-size: 2rem; color: #fff; border-left: 4px solid #25d366; padding-left: 12px; }
     
@@ -102,27 +42,13 @@
     .card-prod { background-color: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
     .card-prod:hover { transform: translateY(-5px); border-color: #25d366; }
     
-    /* CONTENEDOR DE IMAGEN AJUSTADO A COVER */
-    .card-prod-img-container {
-      width: 100%;
-      height: 220px;
-      background: #181818;
-      overflow: hidden;
-    }
-    .card-prod-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-    .card-prod:hover .card-prod-img {
-      transform: scale(1.05);
-    }
+    .card-prod-img-container { width: 100%; height: 220px; background: #181818; overflow: hidden; }
+    .card-prod-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .card-prod:hover .card-prod-img { transform: scale(1.05); }
     
     .card-prod-body { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
     .card-prod-title { font-size: 1.1rem; color: #fff; font-weight: bold; }
     
-    /* PRECIOS EN TARJETA */
     .card-prod-precios { display: flex; flex-direction: column; gap: 6px; background: #121212; padding: 10px; border-radius: 6px; border: 1px solid #2a2a2a; }
     .card-precio-trans { font-size: 1.1rem; font-weight: bold; color: #25d366; }
     .card-precio-tarj { font-size: 0.95rem; font-weight: bold; color: #ffd700; }
@@ -165,14 +91,18 @@
 
   <script>
     const productos = [
-      { id: 1, nombre: "Set Matero Completo Premium", precio: 55275, imagen: "img/comboset.png" },
-      { id: 2, nombre: "Mate Imperial Interior Calabaza", precio: 32000, imagen: "img/matecalabaza.png" },
-      { id: 3, nombre: "Mate Imperial Negro", precio: 25000, imagen: "img/mateimperial.png" },
-      { id: 4, nombre: "Termo de Acero Inoxidable 1L", precio: 20000, imagen: "img/termo.png" },
-      { id: 5, nombre: "Peluche MateCico", precio: 20000, imagen: "img/peluche.png" },
-      { id: 6, nombre: "Canasta Matera", precio: 10000, imagen: "img/canasta.png" },
-      { id: 7, nombre: "Set Yerbera y Azucarera", precio: 6500, imagen: "img/yerbera.png" },
-      { id: 8, nombre: "Bombilla Pico de Loro", precio: 4500, imagen: "img/bombilla.png" }
+      { id: 1, nombre: "Set Matero Completo Premium", precio: 55275, peso: 1.2, imagen: "img/comboset.png" },
+      { id: 2, nombre: "Mate Imperial Interior Calabaza", precio: 32000, peso: 0.3, imagen: "img/matecalabaza.png" },
+      { id: 3, nombre: "Mate Imperial Negro", precio: 25000, peso: 0.3, imagen: "img/mateimperial.png" },
+      { id: 4, nombre: "Termo de Acero Inoxidable 1L", precio: 20000, peso: 0.6, imagen: "img/termo.png" },
+      { id: 5, nombre: "Peluche MateCico", precio: 20000, peso: 0.2, imagen: "img/peluche.png" },
+      { id: 6, nombre: "Canasta Matera", precio: 10000, peso: 0.5, imagen: "img/canasta.png" },
+      { id: 7, nombre: "Set Yerbera y Azucarera", precio: 6500, peso: 0.3, imagen: "img/yerbera.png" },
+      { id: 8, nombre: "Bombilla Pico de Loro", precio: 4500, peso: 0.05, imagen: "img/bombilla.png" },
+      { id: 9, nombre: "Mate Imperial Animal Print", precio: 34000, peso: 0.3, imagen: "img/imperial-animalprint.jpeg" },
+      { id: 10, nombre: "Termo Media Manija Total Black", precio: 24000, peso: 0.6, imagen: "img/mediamanija-totalblack.jpeg" },
+      { id: 11, nombre: "Mate Camionero", precio: 21000, peso: 0.3, imagen: "img/camionero.jpeg" },
+      { id: 12, nombre: "Mate Imperial Borravino", precio: 32000, peso: 0.3, imagen: "img/imperial-borravino.jpeg" }
     ];
 
     function manejarInputBusqueda(event) {
@@ -226,7 +156,6 @@
       }
     }
 
-    // Filtrar por parámetro de búsqueda si existe en la URL
     const urlParams = new URLSearchParams(window.location.search);
     const busquedaQuery = urlParams.get('buscar');
 

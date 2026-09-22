@@ -53,7 +53,14 @@ function agregarAlCarrito(id) {
     if (index !== -1) {
         carrito[index].cantidad += 1;
     } else {
-        carrito.push({ ...productoSeleccionado, cantidad: 1 });
+        carrito.push({ 
+            id: productoSeleccionado.id,
+            nombre: productoSeleccionado.nombre,
+            precio: productoSeleccionado.precio,
+            peso: productoSeleccionado.peso !== undefined ? productoSeleccionado.peso : 0.3, // 👈 Forzamos a que guarde el peso real
+            imagen: productoSeleccionado.imagen,
+            cantidad: 1 
+        });
     }
 
     localStorage.setItem('carrito', JSON.stringify(carrito));
