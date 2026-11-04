@@ -3,15 +3,15 @@ import cors from 'cors';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 const app = express();
+app.set('trust proxy', 1); // Render está detrás de un proxy; necesario para ver la IP real
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
 
-// 1. DATOS DE MERCADO PAGO Y TELEGRAM
+// 1. DATOS DE MERCADO PAGO Y TELEGRAM (se leen de las variables de entorno de Render)
 const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
-const TELEGRAM_BOT_TOKEN = '8966386944:AAH8OTZoT7V-ZGS9WHNtW99NjtCBj0iiZYE';
-const TELEGRAM_CHAT_ID = '7691781211';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 // URL del Backend en Render (para Webhooks de Mercado Pago)
 const URL_PUBLICA_SERVER = 'https://matecito.onrender.com';
@@ -24,6 +24,36 @@ const client = new MercadoPagoConfig({
     accessToken: MP_ACCESS_TOKEN,
     options: { timeout: 5000 }
 });
+
+// 1.b CUPONES PRIVADOS (viven solo en Render, en la variable de entorno CUPONES)
+const CUPONES = {};
+try {
+    const crudo = JSON.parse(process.env.CUPONES || '{}');
+    for (const [codigo, pct] of Object.entries(crudo)) {
+        const n = Number(pct);
+        if (n >= 0 && n <= 100) CUPONES[codigo.trim().toUpperCase()] = n;
+    }
+} catch (e) {
+    console.error('La variable CUPONES no es un JSON válido. No habrá cupones activos.');
+}
+
+function buscarCupon(codigoIngresado) {
+    const codigo = String(codigoIngresado || '').trim().toUpperCase();
+    if (!codigo || !(codigo in CUPONES)) return null;
+    return { codigo, factor: 1 - CUPONES[codigo] / 100 };
+}
+
+const intentosCupon = new Map();
+function limitarIntentos(req, res, next) {
+    const ahora = Date.now();
+    const recientes = (intentosCupon.get(req.ip) || []).filter(t => ahora - t < 60000);
+    if (recientes.length >= 10) {
+        return res.status(429).json({ valido: false, mensaje: 'Demasiados intentos. Probá en un minuto.' });
+    }
+    recientes.push(ahora);
+    intentosCupon.set(req.ip, recientes);
+    next();
+}
 
 // 2. ENVÍO DE MENSAJES A TELEGRAM
 async function enviarNotificacionTelegram(mensaje) {
@@ -49,26 +79,63 @@ async function enviarNotificacionTelegram(mensaje) {
     }
 }
 
+// 2.b RUTA PARA VALIDAR UN CUPÓN
+app.post('/api/validar-cupon', limitarIntentos, (req, res) => {
+    const cuponInfo = buscarCupon(req.body?.codigo);
+    if (!cuponInfo) return res.json({ valido: false, mensaje: 'Código inválido' });
+    res.json({ valido: true, codigo: cuponInfo.codigo, factor: cuponInfo.factor });
+});
+
+// 2.c RUTA PARA COTIZAR ENVÍOS (Correo Argentino / Zonas Fijas)
+app.post('/api/cotizar-envio', (req, res) => {
+    try {
+        const { cpDestino, pesoKg } = req.body;
+        
+        if (!cpDestino) {
+            return res.status(400).json({ valido: false, message: 'Falta el código postal' });
+        }
+
+        let costoBase = 13000; // Tarifa estándar
+        
+        // Si el CP empieza con 1 (CABA / GBA cercano)
+        if (cpDestino.startsWith('1')) {
+            costoBase = 10500;
+        } 
+        // Si el CP es del sur lejano (ej: Tierra del Fuego como 9410)
+        else if (cpDestino.startsWith('9')) {
+            costoBase = 18000;
+        }
+
+        // Si el paquete pesa más de 1.2 kg, sumamos un plus por excedente
+        let plusPeso = 0;
+        if (pesoKg && pesoKg > 1.2) {
+            const exceso = pesoKg - 1.2;
+            plusPeso = Math.ceil(exceso) * 3000;
+        }
+
+        const costoTotalEnvio = costoBase + plusPeso;
+
+        return res.json({ valido: true, costo: costoTotalEnvio });
+
+    } catch (error) {
+        console.error("Error en cotización de envío:", error);
+        return res.status(500).json({ valido: false, message: 'Error interno al cotizar el envío' });
+    }
+});
+
 // 3. RUTA PARA CREAR PREFERENCIA Y NOTIFICAR
 app.post('/api/crear-preferencia', async (req, res) => {
     try {
         const { items, cliente, cupon, envio } = req.body;
         const costoEnvio = Number(envio || 0);
 
-        // --- CHIVATO PARA DEPURAR ---
-        console.log("----------------------------------------");
-        console.log("CUPÓN RECIBIDO EN EL SERVIDOR:", cupon);
-        console.log("ITEMS RECIBIDOS:", items);
-        console.log("ENVÍO RECIBIDO:", costoEnvio);
-        console.log("----------------------------------------");
+        const cuponInfo = buscarCupon(cupon);
 
-        // NORMALIZAR PRODUCTOS Y APLICAR DESCUENTO DE CUPÓN (98% OFF -> queda al 2%)
         const itemsFormateados = (items || []).map(item => {
             let precioUnitario = Number(item.unit_price || item.precio || 0);
 
-            // Validar cupón MATES95 (aplica 98% de descuento, pagando el 2%)
-            if (cupon && cupon.trim().toUpperCase() === 'MATES95') {
-                precioUnitario = precioUnitario * 0.02; 
+            if (cuponInfo) {
+                precioUnitario = precioUnitario * cuponInfo.factor;
             }
 
             return {
@@ -80,7 +147,6 @@ app.post('/api/crear-preferencia', async (req, res) => {
             };
         });
 
-        // AGREGAR EL COSTO DE ENVÍO COMO UN ÍTEM APARTADO (siempre que sea mayor a 0)
         if (costoEnvio > 0) {
             itemsFormateados.push({
                 id: 'envio',
@@ -91,11 +157,9 @@ app.post('/api/crear-preferencia', async (req, res) => {
             });
         }
 
-        // Calcular total y lista
         const total = itemsFormateados.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
         const listaProd = itemsFormateados.map(item => `- ${item.title} x${item.quantity} ($${item.unit_price})`).join('\n');
 
-        // Determinar método de entrega (Retiro o Envío)
         const metodoEntrega = cliente?.metodo || 'envio';
         let textoMetodo = metodoEntrega === 'retiro' 
             ? '🏪 <b>RETIRO EN LOCAL (H. Yrigoyen 710)</b>' 
@@ -106,8 +170,8 @@ app.post('/api/crear-preferencia', async (req, res) => {
             `📞 <b>Teléfono:</b> ${cliente?.telefono || 'No especificado'}\n` +
             `📦 <b>Método:</b> ${textoMetodo}\n`;
         
-        if (cupon) {
-            avisoTelegram += `🎟️ <b>Cupón Aplicado:</b> ${cupon.toUpperCase()}\n`;
+        if (cuponInfo) {
+            avisoTelegram += `🎟️ <b>Cupón Aplicado:</b> ${cuponInfo.codigo}\n`;
         }
 
         avisoTelegram += `💵 <b>Total (Incluyendo envío):</b> $${total}\n\n` +
@@ -134,7 +198,7 @@ app.post('/api/crear-preferencia', async (req, res) => {
                     cliente_direccion: cliente?.direccion || 'No especificada',
                     cliente_localidad: cliente?.localidad || 'No especificada',
                     costo_envio: costoEnvio,
-                    cupon_usado: cupon || 'Ninguno'
+                    cupon_usado: cuponInfo ? cuponInfo.codigo : 'Ninguno'
                 }
             }
         });
